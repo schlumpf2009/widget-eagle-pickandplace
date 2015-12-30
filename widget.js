@@ -177,74 +177,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             tab.removeClass("hidden");
         },
         /**
-         * Call this method from init to setup all the buttons when this widget
-         * is first loaded. This basically attaches click events to your 
-         * buttons. It also turns on all the bootstrap popovers by scanning
-         * the entire DOM of the widget.
-         */
-        btnSetup: function() {
-
-            // Chevron hide/show body
-            var that = this;
-            $('#' + this.id + ' .hidebody').click(function(evt) {
-                console.log("hide/unhide body");
-                if ($('#' + that.id + ' .panel-body').hasClass('hidden')) {
-                    // it's hidden, unhide
-                    that.showBody(evt);
-                }
-                else {
-                    // hide
-                    that.hideBody(evt);
-                }
-            });
-
-            // Ask bootstrap to scan all the buttons in the widget to turn
-            // on popover menus
-            $('#' + this.id + ' .btn').popover({
-                delay: 1000,
-                animation: true,
-                placement: "auto",
-                trigger: "hover",
-                container: 'body'
-            });
-
-            // Init Say Hello Button on Main Toolbar
-            // We are inlining an anonymous method as the callback here
-            // as opposed to a full callback method in the Hello Word 2
-            // example further below. Notice we have to use "that" so 
-            // that the this is set correctly inside the anonymous method
-            $('#' + this.id + ' .btn-sayhello').click(function() {
-                console.log("saying hello");
-                // Make sure popover is immediately hidden
-                $('#' + that.id + ' .btn-sayhello').popover("hide");
-                // Show a flash msg
-                chilipeppr.publish(
-                    "/com-chilipeppr-elem-flashmsg/flashmsg",
-                    "Hello Title",
-                    "Hello World from widget " + that.id,
-                    1000
-                );
-            });
-
-            // Init Hello World 2 button on Tab 1. Notice the use
-            // of the slick .bind(this) technique to correctly set "this"
-            // when the callback is called
-            $('#' + this.id + ' .btn-helloworld2').click(this.onHelloBtnClick.bind(this));
-
-        },
-        /**
-         * onHelloBtnClick is an example of a button click event callback
-         */
-        onHelloBtnClick: function(evt) {
-            console.log("saying hello 2 from btn in tab 1");
-            chilipeppr.publish(
-                '/com-chilipeppr-elem-flashmsg/flashmsg',
-                "Hello 2 Title",
-                "Hello World 2 from Tab 1 from widget " + this.id,
-                2000 /* show for 2 second */
-            );
-        },
-        /**
          * User options are available in this property for reference by your
          * methods. If any change is made on these options, please call
          * saveOptionsLocalStorage()
@@ -306,42 +238,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             console.log("saving options:", options, "json.stringify:", optionsStr);
             // store settings to localStorage
             localStorage.setItem(this.id + '-options', optionsStr);
-        },
-        /**
-         * Show the body of the panel.
-         * @param {jquery_event} evt - If you pass the event parameter in, we 
-         * know it was clicked by the user and thus we store it for the next 
-         * load so we can reset the user's preference. If you don't pass this 
-         * value in we don't store the preference because it was likely code 
-         * that sent in the param.
-         */
-        showBody: function(evt) {
-            $('#' + this.id + ' .panel-body').removeClass('hidden');
-            $('#' + this.id + ' .panel-footer').removeClass('hidden');
-            $('#' + this.id + ' .hidebody span').addClass('glyphicon-chevron-up');
-            $('#' + this.id + ' .hidebody span').removeClass('glyphicon-chevron-down');
-            if (!(evt == null)) {
-                this.options.showBody = true;
-                this.saveOptionsLocalStorage();
-            }
-        },
-        /**
-         * Hide the body of the panel.
-         * @param {jquery_event} evt - If you pass the event parameter in, we 
-         * know it was clicked by the user and thus we store it for the next 
-         * load so we can reset the user's preference. If you don't pass this 
-         * value in we don't store the preference because it was likely code 
-         * that sent in the param.
-         */
-        hideBody: function(evt) {
-            $('#' + this.id + ' .panel-body').addClass('hidden');
-            $('#' + this.id + ' .panel-footer').addClass('hidden');
-            $('#' + this.id + ' .hidebody span').removeClass('glyphicon-chevron-up');
-            $('#' + this.id + ' .hidebody span').addClass('glyphicon-chevron-down');
-            if (!(evt == null)) {
-                this.options.showBody = false;
-                this.saveOptionsLocalStorage();
-            }
         },
         /**
          * This method loads the pubsubviewer widget which attaches to our 
