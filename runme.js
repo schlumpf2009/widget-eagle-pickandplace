@@ -35,7 +35,9 @@ http.createServer(function(req, res) {
     });
 
     //var html = getMainPage();
-    var html = generateWidgetDocs();
+    var htmlDocs = generateWidgetDocs();
+    
+    var html = "";
     generateWidgetReadme();
     html += "<p>Generated a new README.md file...</p>";
     generateInlinedFile();
@@ -45,6 +47,8 @@ http.createServer(function(req, res) {
     pushToGithubAsync();
     html += "<p>Pushed updates to Github...</p>";
 
+    html = html + htmlDocs;
+    
     res.end(html);
 
   } 
