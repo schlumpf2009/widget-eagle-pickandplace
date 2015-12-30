@@ -52,41 +52,80 @@ This widget/element publishes the following signals. These signals are owned by 
 chilipeppr.subscribe(signal, callback) method. 
 To better understand how ChiliPeppr's subscribe() method works see amplify.js's documentation at http://amplifyjs.com/api/pubsub/
 
+<<<<<<< HEAD
 | Signal | Description |
 | ------ | ----------- |
 | (No signals defined in this widget/element) |
+=======
+  <table id="com-chilipeppr-elem-pubsubviewer-pub" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th style="">Signal</th>
+              <th style="">Description</th>
+          </tr>
+      </thead>
+      <tbody>
+      <tr valign="top"><td>/com-chilipeppr-widget-template/onExampleGenerate</td><td>Example: Publish this signal when we go to generate gcode.</td></tr>    
+      </tbody>
+  </table>
+>>>>>>> d1733c95aec920b5bccc0964be40ec9bffd72b41
 
 ## Subscribe
 
 This widget/element subscribes to the following signals. These signals are owned by this widget/element. Other objects inside the ChiliPeppr environment can publish to these signals via the chilipeppr.publish(signal, data) method. 
 To better understand how ChiliPeppr's publish() method works see amplify.js's documentation at http://amplifyjs.com/api/pubsub/
 
-| Signal | Description |
-| ------ | ----------- |
-| (No signals defined in this widget/element) |
+  <table id="com-chilipeppr-elem-pubsubviewer-sub" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th style="">Signal</th>
+              <th style="">Description</th>
+          </tr>
+      </thead>
+      <tbody>
+      <tr><td colspan="2">(No signals defined in this widget/element)</td></tr>    
+      </tbody>
+  </table>
 
 ## Foreign Publish
 
 This widget/element publishes to the following signals that are owned by other objects. 
 To better understand how ChiliPeppr's subscribe() method works see amplify.js's documentation at http://amplifyjs.com/api/pubsub/
 
-| Signal | Description |
-| ------ | ----------- |
-| (No signals defined in this widget/element) |
+  <table id="com-chilipeppr-elem-pubsubviewer-foreignpub" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th style="">Signal</th>
+              <th style="">Description</th>
+          </tr>
+      </thead>
+      <tbody>
+      <tr><td colspan="2">(No signals defined in this widget/element)</td></tr>    
+      </tbody>
+  </table>
 
 ## Foreign Subscribe
 
 This widget/element publishes to the following signals that are owned by other objects.
 To better understand how ChiliPeppr's publish() method works see amplify.js's documentation at http://amplifyjs.com/api/pubsub/
 
-| Signal | Description |
-| ------ | ----------- |
-| (No signals defined in this widget/element) |
+  <table id="com-chilipeppr-elem-pubsubviewer-foreignsub" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th style="">Signal</th>
+              <th style="">Description</th>
+          </tr>
+      </thead>
+      <tbody>
+      <tr><td colspan="2">(No signals defined in this widget/element)</td></tr>    
+      </tbody>
+  </table>
 
 ## Methods / Properties
 
 The table below shows, in order, the methods and properties inside the widget/element.
 
+<<<<<<< HEAD
 | Item                  | Type          | Description |
 | -------------         | ------------- | ----------- |
 | id | string | "com-chilipeppr-widget-eagle-soldermask"<br><br>The ID of the widget. You must define this and make it unique. |
@@ -106,6 +145,20 @@ The table below shows, in order, the methods and properties inside the widget/el
 | setupUiFromLocalStorage | function | function () <br><br>Call this method on init to setup the UI by reading the user'sstored settings from localStorage and then adjust the UI to reflectwhat the user wants. |
 | saveOptionsLocalStorage | function | function () <br><br>When a user changes a value that is stored as an option setting, youshould call this method immediately so that on next load the valueis correctly set. |
 | forkSetup | function | function () <br><br>This method loads the pubsubviewer widget which attaches to our upper right corner triangle menu and generates 3 menu items likePubsub Viewer, View Standalone, and Fork Widget. It also enablesthe modal dialog that shows the documentation for this widget.<br><br>By using chilipeppr.load() we can ensure that the pubsubviewer widgetis only loaded and inlined once into the final ChiliPeppr workspace.We are given back a reference to the instantiated singleton so itsnot instantiated more than once. Then we call it's attachTo methodwhich creates the full pulldown menu for us and attaches the clickevents. |
+=======
+  <table id="com-chilipeppr-elem-methodsprops" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th style="">Method / Property</th>
+              <th>Type</th>
+              <th style="">Description</th>
+          </tr>
+      </thead>
+      <tbody>
+      <tr valign="top"><td>id</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>name</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>desc</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>url</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>fiddleurl</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>githuburl</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>testurl</td><td>string</td><td>[object Object]</td></tr><tr valign="top"><td>publish</td><td>object</td><td>[object Object]</td></tr><tr valign="top"><td>subscribe</td><td>object</td><td>[object Object]</td></tr><tr valign="top"><td>foreignPublish</td><td>object</td><td>[object Object]</td></tr><tr valign="top"><td>foreignSubscribe</td><td>object</td><td>[object Object]</td></tr><tr valign="top"><td>init</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>btnSetup</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>onHelloBtnClick</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>options</td><td>object</td><td>[object Object]</td></tr><tr valign="top"><td>setupUiFromLocalStorage</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>saveOptionsLocalStorage</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>showBody</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>hideBody</td><td>function</td><td>[object Object]</td></tr><tr valign="top"><td>forkSetup</td><td>function</td><td>[object Object]</td></tr>
+      </tbody>
+  </table>
+>>>>>>> d1733c95aec920b5bccc0964be40ec9bffd72b41
 
 
 ## About ChiliPeppr
@@ -136,6 +189,4 @@ ChiliPeppr's Serial Port JSON Server is the basis for the
 [Arduino's new web IDE](https://create.arduino.cc/). If the Arduino team is excited about building on top
 of ChiliPeppr, what
 will you build on top of it?
-
-
 
