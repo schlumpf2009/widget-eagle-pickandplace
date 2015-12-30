@@ -1,9 +1,9 @@
-# com-chilipeppr-widget-template
-This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget.
+# com-chilipeppr-widget-eagle-soldermask
+This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask.
 
 ![alt text](screenshot.png "Screenshot")
 
-## ChiliPeppr Widget / Template
+## ChiliPeppr Widget Add-On / Eagle Solder Mask
 
 All ChiliPeppr widgets/elements are defined using cpdefine() which is a method
 that mimics require.js. Each defined object must have a unique ID so it does
@@ -11,13 +11,13 @@ not conflict with other ChiliPeppr widgets.
 
 | Item                  | Value           |
 | -------------         | ------------- | 
-| ID                    | com-chilipeppr-widget-template |
-| Name                  | Widget / Template |
-| Description           | This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget. |
-| chilipeppr.load() URL | http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-template/master/auto-generated-widget.html |
-| Edit URL              | http://ide.c9.io/chilipeppr/com-chilipeppr-widget-template |
-| Github URL            | http://github.com/chilipeppr/com-chilipeppr-widget-template |
-| Test URL              | https://preview.c9users.io/chilipeppr/com-chilipeppr-widget-template/widget.html |
+| ID                    | com-chilipeppr-widget-eagle-soldermask |
+| Name                  | Widget Add-On / Eagle Solder Mask |
+| Description           | This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask. |
+| chilipeppr.load() URL | http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-eagle-soldermask/master/auto-generated-widget.html |
+| Edit URL              | http://ide.c9.io/chilipeppr/com-chilipeppr-widget-eagle-soldermask |
+| Github URL            | http://github.com/chilipeppr/com-chilipeppr-widget-eagle-soldermask |
+| Test URL              | https://preview.c9users.io/chilipeppr/com-chilipeppr-widget-eagle-soldermask/widget.html |
 
 ## Example Code for chilipeppr.load() Statement
 
@@ -30,11 +30,11 @@ back the instance of it.
 ```javascript
 chilipeppr.load(
   "#myDivWidgetInsertedInto",
-  "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-template/master/auto-generated-widget.html",
+  "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-eagle-soldermask/master/auto-generated-widget.html",
   function() {
     // Callback after widget loaded into #myDivWidgetInsertedInto
     cprequire(
-      "inline:com-chilipeppr-widget-template", // the id you gave your widget
+      ["inline:com-chilipeppr-widget-eagle-soldermask"], // the id you gave your widget
       function(mywidget) {
         // Callback that is passed reference to your newly loaded widget
         console.log("My widget just got loaded.", mywidget);
@@ -54,7 +54,7 @@ To better understand how ChiliPeppr's subscribe() method works see amplify.js's 
 
 | Signal | Description |
 | ------ | ----------- |
-| /com-chilipeppr-widget-template/onExampleGenerate | Example: Publish this signal when we go to generate gcode. |
+| (No signals defined in this widget/element) |
 
 ## Subscribe
 
@@ -89,18 +89,19 @@ The table below shows, in order, the methods and properties inside the widget/el
 
 | Item                  | Type          | Description |
 | -------------         | ------------- | ----------- |
-| id | string | "com-chilipeppr-widget-template"<br><br>The ID of the widget. You must define this and make it unique. |
-| name | string | "Widget / Template" |
-| desc | string | "This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget." |
-| url | string | "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-template/master/auto-generated-widget.html" |
-| fiddleurl | string | "http://ide.c9.io/chilipeppr/com-chilipeppr-widget-template" |
-| githuburl | string | "http://github.com/chilipeppr/com-chilipeppr-widget-template" |
-| testurl | string | "http://com-chilipeppr-widget-template-chilipeppr.c9users.io/widget.html" |
+| id | string | "com-chilipeppr-widget-eagle-soldermask"<br><br>The ID of the widget. You must define this and make it unique. |
+| name | string | "Widget Add-On / Eagle Solder Mask" |
+| desc | string | "This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask." |
+| url | string | "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-eagle-soldermask/master/auto-generated-widget.html" |
+| fiddleurl | string | "http://ide.c9.io/chilipeppr/com-chilipeppr-widget-eagle-soldermask" |
+| githuburl | string | "http://github.com/chilipeppr/com-chilipeppr-widget-eagle-soldermask" |
+| testurl | string | "http://com-chilipeppr-widget-eagle-soldermask-chilipeppr.c9users.io/widget.html" |
 | publish | object | Please see docs above.<br><br>Define the publish signals that this widget/element owns or defines so thatother widgets know how to subscribe to them and what they do. |
 | subscribe | object | Please see docs above.<br><br>Define the subscribe signals that this widget/element owns or defines so thatother widgets know how to subscribe to them and what they do. |
 | foreignPublish | object | Please see docs above.<br><br>Document the foreign publish signals, i.e. signals owned by other widgetsor elements, that this widget/element publishes to. |
 | foreignSubscribe | object | Please see docs above.<br><br>Document the foreign subscribe signals, i.e. signals owned by other widgetsor elements, that this widget/element subscribes to. |
 | init | function | function () <br><br>All widgets should have an init method. It should be run by theinstantiating code like a workspace or a different widget. |
+| injectTab | function | function () <br><br>Inject the solder mask tab into the Eagle Brd Widget |
 | btnSetup | function | function () <br><br>Call this method from init to setup all the buttons when this widgetis first loaded. This basically attaches click events to your buttons. It also turns on all the bootstrap popovers by scanningthe entire DOM of the widget. |
 | onHelloBtnClick | function | function (evt) <br><br>onHelloBtnClick is an example of a button click event callback |
 | options | object | User options are available in this property for reference by yourmethods. If any change is made on these options, please callsaveOptionsLocalStorage() |

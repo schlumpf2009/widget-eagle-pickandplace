@@ -3,79 +3,107 @@
 
 // ChiliPeppr Widget/Element Javascript
 
-requirejs.config({
-    /*
-    Dependencies can be defined here. ChiliPeppr uses require.js so
-    please refer to http://requirejs.org/docs/api.html for info.
-    
-    Most widgets will not need to define Javascript dependencies.
-    
-    Make sure all URLs are https and http accessible. Try to use URLs
-    that start with // rather than http:// or https:// so they simply
-    use whatever method the main page uses.
-    
-    Also, please make sure you are not loading dependencies from different
-    URLs that other widgets may already load like jquery, bootstrap,
-    three.js, etc.
-    
-    You may slingshot content through ChiliPeppr's proxy URL if you desire
-    to enable SSL for non-SSL URL's. ChiliPeppr's SSL URL is
-    https://i2dcui.appspot.com which is the SSL equivalent for
-    http://chilipeppr.com
-    */
-    paths: {
-        // Example of how to define the key (you make up the key) and the URL
-        // Make sure you DO NOT put the .js at the end of the URL
-        // SmoothieCharts: '//smoothiecharts.org/smoothie',
-    },
-    shim: {
-        // See require.js docs for how to define dependencies that
-        // should be loaded before your script/widget.
-    }
-});
 
-cprequire_test(["inline:com-chilipeppr-widget-template"], function(myWidget) {
+cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(soldermask) {
 
     // Test this element. This code is auto-removed by the chilipeppr.load()
     // when using this widget in production. So use the cpquire_test to do things
     // you only want to have happen during testing, like loading other widgets or
     // doing unit tests. Don't remove end_test at the end or auto-remove will fail.
 
-    console.log("test running of " + myWidget.id);
+    console.log("test running of " + soldermask.id);
 
-    $('body').prepend('<div id="testDivForFlashMessageWidget"></div>');
+    $('body').prepend(
+        '<div id="com-chilipeppr-flash"></div>' +
+        '<div id="test-drag-drop"></div>' +
+        '<div id="3dviewer"></div>' +
+        '<div id="test-eagle" style="position: relative; width: 300px;"></div>' +
+        ''
+    );
 
-    chilipeppr.load(
-        "#testDivForFlashMessageWidget",
+    chilipeppr.load("#3dviewer", "http://fiddle.jshell.net/chilipeppr/y3HRF/195/show/light/", function() {
+        cprequire(['inline:com-chilipeppr-widget-3dviewer'], function(threedviewer) {
+
+            // When we init the 3d viewer, tell it to not do its own drag/drop
+            threedviewer.init({
+                doMyOwnDragDrop: false
+            });
+
+            // do some tweaking of the layout
+            // $('#com-chilipeppr-widget-eagle').css('position', 'absolute');
+            // $('#com-chilipeppr-widget-eagle').css('left', '10px');
+            // $('#com-chilipeppr-widget-eagle').css('top', '10px');
+            //$('#com-chilipeppr-widget-eagle').css('background', 'none');
+            // $('#com-chilipeppr-widget-eagle').css('width', '300px');
+
+            
+            // now load the eagle widget, so that we can init our solder mask widget
+            chilipeppr.load(
+                "#test-eagle",
+                "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-eagle/master/auto-generated-widget.html",
+                function() {
+                    // Callback after widget loaded into #myDivWidgetInsertedInto
+                    
+                    cprequire(
+                        ["inline:com-chilipeppr-widget-eagle"],
+                        function(eagleWidget) {
+                            // Callback that is passed reference to your newly loaded widget
+                            console.log("Eagle widget just got loaded.", eagleWidget);
+                            // only init eagle widget once 3d is loaded
+                            // set doMyOwnDragDrop
+                            eagleWidget.init(true);
+                            
+                            // now init our own widget
+                            soldermask.init();
+                        }
+                    );
+                    
+                }
+            );
+            
+            
+
+        });
+    });
+
+    chilipeppr.load("#test-drag-drop", "http://fiddle.jshell.net/chilipeppr/Z9F6G/show/light/",
+
+        function() {
+            cprequire(
+                ["inline:com-chilipeppr-elem-dragdrop"],
+
+                function(dd) {
+                    dd.init();
+                    dd.bind("body", null);
+                });
+        });
+
+    chilipeppr.load("#com-chilipeppr-flash",
         "http://fiddle.jshell.net/chilipeppr/90698kax/show/light/",
+
         function() {
             console.log("mycallback got called after loading flash msg module");
             cprequire(["inline:com-chilipeppr-elem-flashmsg"], function(fm) {
                 //console.log("inside require of " + fm.id);
                 fm.init();
             });
-        }
-    );
-
-    // init my widget
-    myWidget.init();
-    $('#com-chilipeppr-widget-template').css('padding', '10px;');
+        });
 
 } /*end_test*/ );
 
 // This is the main definition of your widget. Give it a unique name.
-cpdefine("inline:com-chilipeppr-widget-template", ["chilipeppr_ready", /* other dependencies here */ ], function() {
+cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /* other dependencies here */ ], function() {
     return {
         /**
          * The ID of the widget. You must define this and make it unique.
          */
-        id: "com-chilipeppr-widget-template", // Make the id the same as the cpdefine id
-        name: "Widget / Template", // The descriptive name of your widget.
-        desc: "This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget.", // A description of what your widget does
-        url: "(auto fill by runme.js)",       // The final URL of the working widget as a single HTML file with CSS and Javascript inlined. You can let runme.js auto fill this if you are using Cloud9.
+        id: "com-chilipeppr-widget-eagle-soldermask", // Make the id the same as the cpdefine id
+        name: "Widget Add-On / Eagle Solder Mask", // The descriptive name of your widget.
+        desc: "This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask.", // A description of what your widget does
+        url: "(auto fill by runme.js)", // The final URL of the working widget as a single HTML file with CSS and Javascript inlined. You can let runme.js auto fill this if you are using Cloud9.
         fiddleurl: "(auto fill by runme.js)", // The edit URL. This can be auto-filled by runme.js in Cloud9 if you'd like, or just define it on your own to help people know where they can edit/fork your widget
         githuburl: "(auto fill by runme.js)", // The backing github repo
-        testurl: "(auto fill by runme.js)",   // The standalone working widget so can view it working by itself
+        testurl: "(auto fill by runme.js)", // The standalone working widget so can view it working by itself
         /**
          * Define pubsub signals below. These are basically ChiliPeppr's event system.
          * ChiliPeppr uses amplify.js's pubsub system so please refer to docs at
@@ -87,7 +115,7 @@ cpdefine("inline:com-chilipeppr-widget-template", ["chilipeppr_ready", /* other 
          */
         publish: {
             // Define a key:value pair here as strings to document what signals you publish.
-            '/onExampleGenerate': 'Example: Publish this signal when we go to generate gcode.'
+            //'/onExampleGenerate': 'Example: Publish this signal when we go to generate gcode.'
         },
         /**
          * Define the subscribe signals that this widget/element owns or defines so that
@@ -124,10 +152,29 @@ cpdefine("inline:com-chilipeppr-widget-template", ["chilipeppr_ready", /* other 
             console.log("I am being initted. Thanks.");
 
             this.setupUiFromLocalStorage();
-            this.btnSetup();
-            this.forkSetup();
+            this.injectTab();
+            //this.btnSetup();
+            //this.forkSetup();
 
             console.log("I am done being initted.");
+        },
+        /**
+         * Inject the solder mask tab into the Eagle Brd Widget
+         */
+        injectTab: function() {
+            
+            // create our tab header
+            var tabHdrEl = $('<li xclass="active">' +
+                '<a href="#' + this.id + 
+                '" role="tab" data-toggle="tab">' +
+                'Solder Mask</a></li>'
+            );
+            $('#com-chilipeppr-widget-eagle .panel-body .nav-tabs').append(tabHdrEl);
+            
+            // move the tab from our html and move it into the correct spot
+            var tab = $('#' + this.id).detach();
+            $('#com-chilipeppr-widget-eagle .panel-body .tab-content').append(tab);
+            tab.removeClass("hidden");
         },
         /**
          * Call this method from init to setup all the buttons when this widget
