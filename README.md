@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 # com-chilipeppr-widget-eagle-soldermask
 This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask.
-=======
-# com-chilipeppr-widget-template
-This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget. Make sure to run runme.js every time you are done editing your code so you can regenerate your README.md file, regenerate your auto-generated-widget.html, and automatically push your changes to Github.
->>>>>>> 9fdeb427078dd6b53cc3d43f4f5b2faf3aa952af
 
 ![alt text](screenshot.png "Screenshot")
 
@@ -16,7 +11,6 @@ not conflict with other ChiliPeppr widgets.
 
 | Item                  | Value           |
 | -------------         | ------------- | 
-<<<<<<< HEAD
 | ID                    | com-chilipeppr-widget-eagle-soldermask |
 | Name                  | Widget Add-On / Eagle Solder Mask |
 | Description           | This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask. |
@@ -24,15 +18,6 @@ not conflict with other ChiliPeppr widgets.
 | Edit URL              | http://ide.c9.io/chilipeppr/widget-eagle-soldermask |
 | Github URL            | http://github.com/chilipeppr/widget-eagle-soldermask |
 | Test URL              | https://preview.c9users.io/chilipeppr/widget-eagle-soldermask/widget.html |
-=======
-| ID                    | com-chilipeppr-widget-template |
-| Name                  | Widget / Template |
-| Description           | This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget. Make sure to run runme.js every time you are done editing your code so you can regenerate your README.md file, regenerate your auto-generated-widget.html, and automatically push your changes to Github. |
-| chilipeppr.load() URL | http://raw.githubusercontent.com/chilipeppr/widget-template/master/auto-generated-widget.html |
-| Edit URL              | http://ide.c9.io/chilipeppr/widget-template |
-| Github URL            | http://github.com/chilipeppr/widget-template |
-| Test URL              | https://preview.c9users.io/chilipeppr/widget-template/widget.html |
->>>>>>> 9fdeb427078dd6b53cc3d43f4f5b2faf3aa952af
 
 ## Example Code for chilipeppr.load() Statement
 
@@ -45,19 +30,11 @@ back the instance of it.
 ```javascript
 chilipeppr.load(
   "#myDivWidgetInsertedInto",
-<<<<<<< HEAD
   "http://raw.githubusercontent.com/chilipeppr/widget-eagle-soldermask/master/auto-generated-widget.html",
   function() {
     // Callback after widget loaded into #myDivWidgetInsertedInto
     cprequire(
       ["inline:com-chilipeppr-widget-eagle-soldermask"], // the id you gave your widget
-=======
-  "http://raw.githubusercontent.com/chilipeppr/widget-template/master/auto-generated-widget.html",
-  function() {
-    // Callback after widget loaded into #myDivWidgetInsertedInto
-    cprequire(
-      ["inline:com-chilipeppr-widget-template"], // the id you gave your widget
->>>>>>> 9fdeb427078dd6b53cc3d43f4f5b2faf3aa952af
       function(mywidget) {
         // Callback that is passed reference to your newly loaded widget
         console.log("My widget just got loaded.", mywidget);
@@ -112,7 +89,6 @@ The table below shows, in order, the methods and properties inside the widget/el
 
 | Item                  | Type          | Description |
 | -------------         | ------------- | ----------- |
-<<<<<<< HEAD
 | id | string | "com-chilipeppr-widget-eagle-soldermask"<br><br>The ID of the widget. You must define this and make it unique. |
 | name | string | "Widget Add-On / Eagle Solder Mask" |
 | desc | string | "This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask." |
@@ -120,15 +96,6 @@ The table below shows, in order, the methods and properties inside the widget/el
 | fiddleurl | string | "http://ide.c9.io/chilipeppr/widget-eagle-soldermask" |
 | githuburl | string | "http://github.com/chilipeppr/widget-eagle-soldermask" |
 | testurl | string | "http://widget-eagle-soldermask-chilipeppr.c9users.io/widget.html" |
-=======
-| id | string | "com-chilipeppr-widget-template"<br><br>The ID of the widget. You must define this and make it unique. |
-| name | string | "Widget / Template" |
-| desc | string | "This example widget gives you a framework for creating your own widget. Please change this description once you fork this template and create your own widget. Make sure to run runme.js every time you are done editing your code so you can regenerate your README.md file, regenerate your auto-generated-widget.html, and automatically push your changes to Github." |
-| url | string | "http://raw.githubusercontent.com/chilipeppr/widget-template/master/auto-generated-widget.html" |
-| fiddleurl | string | "http://ide.c9.io/chilipeppr/widget-template" |
-| githuburl | string | "http://github.com/chilipeppr/widget-template" |
-| testurl | string | "http://widget-template-chilipeppr.c9users.io/widget.html" |
->>>>>>> 9fdeb427078dd6b53cc3d43f4f5b2faf3aa952af
 | publish | object | Please see docs above.<br><br>Define the publish signals that this widget/element owns or defines so thatother widgets know how to subscribe to them and what they do. |
 | subscribe | object | Please see docs above.<br><br>Define the subscribe signals that this widget/element owns or defines so thatother widgets know how to subscribe to them and what they do. |
 | foreignPublish | object | Please see docs above.<br><br>Document the foreign publish signals, i.e. signals owned by other widgetsor elements, that this widget/element publishes to. |
