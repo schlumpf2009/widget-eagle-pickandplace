@@ -13,6 +13,9 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
 
     console.log("test running of " + soldermask.id);
 
+    // adjust my title
+    $('title').html(soldermask.name);
+    
     $('body').prepend(
         '<div id="com-chilipeppr-flash"></div>' +
         '<div id="test-drag-drop"></div>' +
@@ -143,6 +146,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             // Define a key:value pair here as strings to document what signals you subscribe to
             // that are owned by foreign/other widgets.
             // '/com-chilipeppr-elem-dragdrop/ondropped': 'Example: We subscribe to this signal at a higher priority to intercept the signal. We do not let it propagate by returning false.'
+        
+            '/com-chilipeppr-widget-eagle/addGcode' : 'This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.'
         },
         /**
          * All widgets should have an init method. It should be run by the
@@ -177,6 +182,35 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             tab.removeClass("hidden");
         },
         /**
+         * We subscribe to the main Eagle Widget's addGcode publish signal
+         * so that we can inject our own Gcode to the main widget.
+         */
+        subscribeToAddGcodeSignal: function() {
+            chilipeppr.subscribe("/com-chilipeppr-widget-eagle/addGcode", this, this.onAddGcode);
+        },
+        /**
+         * This is our callback that gets called when the /com-chilipeppr-widget-eagle/addGcode
+         * signal is published by the main Eagle Widget. This is where we get to actually
+         * inject our own Gcode to the final overall Gcode.
+         */
+        onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
+            console.log("Got onAddGcode:", arguments);
+            addGcodeCallback(1500, this.exportGcodeSoldermask(eagleWidget) );
+        },
+        /**
+         * Generate the gcode for the solder mask
+         */
+        exportGcodeSoldermask: function(eagleWidget) {
+
+            var g = "";
+            g += "(------ Solder Mask Laser Ablation -------)\n";
+            g += "( Each pad/smd is zig zag scanned to ablate )\n";
+            g += "( the solder mask over the copper. Use a UV )\n";
+            g += "( laser of 1 watt )\n";
+            return g;
+        },
+        
+        /**
          * User options are available in this property for reference by your
          * methods. If any change is made on these options, please call
          * saveOptionsLocalStorage()
@@ -205,7 +239,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             }
             else {
                 options = {
-                    showBody: true,
+                    //showBody: true,
                     tabShowing: 1,
                     customParam1: null,
                     customParam2: 1.0
@@ -215,13 +249,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             this.options = options;
             console.log("options:", options);
 
-            // show/hide body
-            if (options.showBody) {
-                this.showBody();
-            }
-            else {
-                this.hideBody();
-            }
 
         },
         /**
