@@ -3,7 +3,6 @@
 
 // ChiliPeppr Widget/Element Javascript
 
-
 cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(soldermask) {
 
     // Test this element. This code is auto-removed by the chilipeppr.load()
@@ -63,7 +62,6 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
                     
                 }
             );
-            
             
 
         });
