@@ -157,7 +157,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             console.log("I am being initted. Thanks.");
 
             this.setupUiFromLocalStorage();
+            this.subscribeToAddGcodeSignal();
             this.injectTab();
+
             //this.btnSetup();
             //this.forkSetup();
 
