@@ -42,7 +42,7 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
         '<div id="com-chilipeppr-flash"></div>' +
         '<div id="test-drag-drop"></div>' +
         '<div id="3dviewer"></div>' +
-        '<div id="test-eagle" style="position: relative; width: 300px;"></div>' +
+        '<div id="test-eagle" style="position: relative; width: 320px; background:none;"></div>' +
         ''
     );
 
@@ -58,7 +58,6 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
             // $('#com-chilipeppr-widget-eagle').css('position', 'absolute');
             // $('#com-chilipeppr-widget-eagle').css('left', '10px');
             // $('#com-chilipeppr-widget-eagle').css('top', '10px');
-            //$('#com-chilipeppr-widget-eagle').css('background', 'none');
             // $('#com-chilipeppr-widget-eagle').css('width', '300px');
 
             
@@ -74,12 +73,15 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
                         function(eagleWidget) {
                             // Callback that is passed reference to your newly loaded widget
                             console.log("Eagle widget just got loaded.", eagleWidget);
+                            
+                            $('#com-chilipeppr-widget-eagle').css('background', 'none');
+
                             // only init eagle widget once 3d is loaded
                             // set doMyOwnDragDrop
                             eagleWidget.init(true);
                             
                             // now init our own widget
-                            soldermask.init();
+                            soldermask.init(eagleWidget);
                         }
                     );
                     
@@ -171,15 +173,25 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             '/com-chilipeppr-widget-eagle/addGcode' : 'This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.'
         },
         /**
+         * Holds the reference to the main Eagle Widget that we are an add-on for.
+         */
+        eagleWidget: null,
+        /**
          * All widgets should have an init method. It should be run by the
          * instantiating code like a workspace or a different widget.
          */
-        init: function() {
-            console.log("I am being initted. Thanks.");
+        init: function(eagleWidget) {
+            
+            this.eagleWidget = eagleWidget;
+            console.log("I am being initted. eagleWidget:", this.eagleWidget);
 
-            this.setupUiFromLocalStorage();
-            this.subscribeToAddGcodeSignal();
-            this.injectTab();
+            // first thing we need to do is get 3d obj
+            this.get3dObj(function() {
+                // when we get here, we've got the 3d obj 
+                this.setupUiFromLocalStorage();
+                this.subscribeToAddGcodeSignal();
+                this.injectTab();
+            });
 
             //this.btnSetup();
             //this.forkSetup();
@@ -203,6 +215,120 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             var tab = $('#' + this.id).detach();
             $('#com-chilipeppr-widget-eagle .panel-body .tab-content').append(tab);
             tab.removeClass("hidden");
+            
+            var that = this;
+            $('#com-chilipeppr-widget-eagle a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                console.log("tab shown. e:", e);
+                var target = $(e.target).attr("href") // activated tab
+                if (target.match(/#com-chilipeppr-widget-eagle/)) {
+                    // we just got shown
+                    that.onTabShown();
+                } else {
+                    that.onTabHide();
+                }
+            });
+        },
+        isTabShowing: false,
+        /**
+         * Holds the solder mask 3d object that we show in the 3D viewer.
+         */
+        mask3d: null,
+        /**
+         * When the user clicks to activate our tab, this event is called.
+         */
+        onTabShown: function() {
+           
+           this.isTabShowing = true;
+           
+            this.drawSolderMask();
+        },
+        /**
+         * When the user clicks a different tab and this one gets hidden.
+         */
+        onTabHide: function() {
+            this.isTabShowing = false;
+            this.sceneRemove(this.mask3d);
+        },
+        /**
+         * Iterate through the Eagle BRD dimensions XY coordinates and draw
+         * a solder mask over the board.
+         */
+        drawSolderMask: function() {
+            // add a green solder mask layer on top of the PCB
+            console.log("eagleWidget:", this.eagleWidget, 
+                "clipperDimension:", this.eagleWidget.clipperDimension);
+
+            var rectShape = new THREE.Shape();
+
+            // use the dimensions and create our plane
+            var pt, lastPt;
+            for (var indx = 0; indx < this.eagleWidget.clipperDimension.length; indx++) {
+               
+                pt = this.eagleWidget.clipperDimension[indx];
+                //console.log("dimension pt:", pt);
+                if (lastPt && pt.X == lastPt.X && pt.Y == lastPt.Y) {
+                    // duplicate pt, skip it
+                    //console.log("skip pt:", pt);
+                    continue;
+                }
+                
+                if (indx == 0) rectShape.moveTo(pt.X, pt.Y);
+                else rectShape.lineTo(pt.X, pt.Y);
+                
+                lastPt = pt;
+            }
+            
+            // now remove the pads
+            for (var i = 0; i < this.eagleWidget.clipperPads.length; i++) {
+                
+                var padPts = this.eagleWidget.clipperPads[i];
+                
+                // each pad will have multiple points in an array
+                var padHole = new THREE.Path(); 
+                
+                var pt, lastPt;
+                for (var indx = 0; indx < padPts.length; indx++) {
+                   
+                    pt = padPts[indx];
+                    console.log("pad pt:", pt);
+                    if (lastPt && pt.X == lastPt.X && pt.Y == lastPt.Y) {
+                        // duplicate pt, skip it
+                        console.log("skip pad pt:", pt);
+                        continue;
+                    }
+                    
+                    if (indx == 0) padHole.moveTo(pt.X, pt.Y);
+                    else padHole.lineTo(pt.X, pt.Y);
+                    
+                    lastPt = pt;
+                }
+                
+                console.log("pushing hole:", padHole);
+                rectShape.holes.push(padHole);
+
+            }
+            
+            
+            /*
+            var padHole = new THREE.Path(); 
+            windowHole.moveTo(-2,-2);
+            windowHole.lineTo(0,-2);
+            windowHole.lineTo(0,0);
+            windowHole.lineTo(-2,0);
+            windowHole.lineTo(-2,-2);
+            shape.holes.push(windowHole);
+            */
+            
+            var rectGeom = new THREE.ShapeGeometry( rectShape );
+            var rectMesh = new THREE.Mesh( rectGeom, new THREE.MeshPhongMaterial( { 
+                color: 0x2e694b, 
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide
+            } ) ) ;
+            rectMesh.position.setZ(1);
+            this.mask3d = rectMesh;
+            this.sceneAdd( this.mask3d );
         },
         /**
          * We subscribe to the main Eagle Widget's addGcode publish signal
@@ -231,6 +357,39 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             g += "( the solder mask over the copper. Use a UV )\n";
             g += "( laser of 1 watt )\n";
             return g;
+        },
+        get3dObj: function (callback) {
+            this.userCallbackForGet3dObj = callback;
+            chilipeppr.subscribe("/com-chilipeppr-widget-3dviewer/recv3dObject", this, this.get3dObjCallback);
+            chilipeppr.publish("/com-chilipeppr-widget-3dviewer/request3dObject", "");
+            chilipeppr.unsubscribe("/com-chilipeppr-widget-3dviewer/recv3dObject", this.get3dObjCallback);
+        },
+        get3dObjCallback: function (data, meta) {
+            console.log("got 3d obj:", data, meta);
+            this.obj3d = data;
+            this.obj3dmeta = meta;
+            if (this.userCallbackForGet3dObj) {
+                this.userCallbackForGet3dObj();
+                this.userCallbackForGet3dObj = null;
+            }
+        },
+        mySceneGroup: null,
+        sceneAdd: function (obj) {
+            // let's add our Eagle BRD content outside the scope of the Gcode content
+            // so that we have it stay while the Gcode 3D Viewer still functions
+            if (this.mySceneGroup == null) {
+                this.mySceneGroup = new THREE.Group();
+                this.obj3d.add(this.mySceneGroup);
+            }
+            this.mySceneGroup.add(obj);
+            // you need to wake up the 3d viewer to see your changes
+            // it sleeps automatically after 5 seconds to convserve CPU
+            this.obj3dmeta.widget.wakeAnimate();
+        },
+        sceneRemove: function (obj) {
+            if (this.mySceneGroup != null)
+                this.mySceneGroup.remove(obj);
+            this.obj3dmeta.widget.wakeAnimate();
         },
         
         /**
