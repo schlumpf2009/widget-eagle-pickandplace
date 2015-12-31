@@ -258,10 +258,20 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
                 lastPt = pt;
             }
             
-            // now remove the pads
-            for (var i = 0; i < this.eagleWidget.clipperPads.length; i++) {
+            // now remove the pads & smds
+            
+            // append cloned arrays together
+            //var padsSmds = this.eagleWidget.clipperPads.slice();
+            //padsSmds.push.apply(padsSmds, this.eagleWidget.clipperSmds.slice());
+            var padsSmds = [].concat( 
+                this.eagleWidget.clipperPads, 
+                this.eagleWidget.clipperSmds
+            );
+            
+            //for (var i = 0; i < this.eagleWidget.clipperPads.length; i++) {
+            for (var i = 0; i < padsSmds.length; i++) {
                 
-                var padPts = this.eagleWidget.clipperPads[i];
+                var padPts = padsSmds[i];
                 
                 // each pad will have multiple points in an array
                 var padHole = new THREE.Path(); 
