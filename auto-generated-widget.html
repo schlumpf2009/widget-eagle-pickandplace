@@ -21,11 +21,10 @@
 
     <script type='text/javascript'>
     //<![CDATA[
-/*global requirejs cprequire cpdefine chilipeppr THREE*/
-// ignore this errormessage:
+/* global requirejs cprequire cpdefine chilipeppr THREE */
+// Defining the globals above helps Cloud9 not show warnings for those variables
 
 // ChiliPeppr Widget/Element Javascript
-
 
 cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(soldermask) {
 
@@ -86,7 +85,6 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
                     
                 }
             );
-            
             
 
         });
@@ -180,7 +178,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             console.log("I am being initted. Thanks.");
 
             this.setupUiFromLocalStorage();
+            this.subscribeToAddGcodeSignal();
             this.injectTab();
+
             //this.btnSetup();
             //this.forkSetup();
 
