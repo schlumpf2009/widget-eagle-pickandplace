@@ -159,7 +159,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
         foreignPublish: {
             // Define a key:value pair here as strings to document what signals you publish to
             // that are owned by foreign/other widgets.
-            // '/jsonSend': 'Example: We send Gcode to the serial port widget to do stuff with the CNC controller.'
+        
+            "/com-chilipeppr-widget-3dviewer/request3dObject" : 'We need to work with the 3D Viewer and inject content, so by sending out this signal the 3D viewer hears it and sends us back a /recv3dObject with the payload.'
         },
         /**
          * Document the foreign subscribe signals, i.e. signals owned by other widgets
@@ -170,7 +171,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             // that are owned by foreign/other widgets.
             // '/com-chilipeppr-elem-dragdrop/ondropped': 'Example: We subscribe to this signal at a higher priority to intercept the signal. We do not let it propagate by returning false.'
         
-            '/com-chilipeppr-widget-eagle/addGcode' : 'This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.'
+            '/com-chilipeppr-widget-eagle/addGcode' : 'This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.',
+        
+            '/com-chilipeppr-widget-3dviewer/recv3dObject' : 'We need to get the 3D Viewer so we can inject stuff into it. We must subscribe to this so when we call /request3dObject we get this signal back with the payload of the viewer.'
         },
         /**
          * Holds the reference to the main Eagle Widget that we are an add-on for.

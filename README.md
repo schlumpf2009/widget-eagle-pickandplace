@@ -94,7 +94,7 @@ To better understand how ChiliPeppr's subscribe() method works see amplify.js's 
           </tr>
       </thead>
       <tbody>
-      <tr><td colspan="2">(No signals defined in this widget/element)</td></tr>    
+      <tr valign="top"><td>/com-chilipeppr-widget-eagle-soldermask/com-chilipeppr-widget-3dviewer/request3dObject</td><td>We need to work with the 3D Viewer and inject content, so by sending out this signal the 3D viewer hears it and sends us back a /recv3dObject with the payload.</td></tr>    
       </tbody>
   </table>
 
@@ -111,7 +111,7 @@ To better understand how ChiliPeppr's publish() method works see amplify.js's do
           </tr>
       </thead>
       <tbody>
-      <tr valign="top"><td>/com-chilipeppr-widget-eagle-soldermask/com-chilipeppr-widget-eagle/addGcode</td><td>This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.</td></tr>    
+      <tr valign="top"><td>/com-chilipeppr-widget-eagle-soldermask/com-chilipeppr-widget-eagle/addGcode</td><td>This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.</td></tr><tr valign="top"><td>/com-chilipeppr-widget-eagle-soldermask/com-chilipeppr-widget-3dviewer/recv3dObject</td><td>We need to get the 3D Viewer so we can inject stuff into it. We must subscribe to this so when we call /request3dObject we get this signal back with the payload of the viewer.</td></tr>    
       </tbody>
   </table>
 
