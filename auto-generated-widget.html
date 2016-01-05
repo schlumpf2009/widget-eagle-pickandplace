@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-    <title>Widget Add-On / Eagle Solder Mask</title>
+    <title>Widget Add-On / Pick and Place</title>
 
     <!-- ChiliPeppr is based on bootstrap CSS. -->
     <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -16,6 +16,14 @@
     <style type='text/css'>
 /* CSS for ChiliPeppr Widget */
 
+#com-chilipeppr-widget-pickandplace .pnp-select {
+   width: 150px;
+}
+
+#com-chilipeppr-widget-pickandplace .nav-tabs>li>a {
+    padding: 2px 6px;
+}
+
 
     </style>
 
@@ -26,17 +34,17 @@
 
 // ChiliPeppr Widget/Element Javascript
 
-cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(soldermask) {
+cprequire_test(["inline:com-chilipeppr-widget-eagle-pickandplace"], function(pickandplace) {
 
     // Test this element. This code is auto-removed by the chilipeppr.load()
     // when using this widget in production. So use the cpquire_test to do things
     // you only want to have happen during testing, like loading other widgets or
     // doing unit tests. Don't remove end_test at the end or auto-remove will fail.
 
-    console.log("test running of " + soldermask.id);
+    console.log("test running of " + pickandplace.id);
 
     // adjust my title
-    $('title').html(soldermask.name);
+    $('title').html(pickandplace.name);
     
     $('body').prepend(
         '<div id="com-chilipeppr-flash"></div>' +
@@ -64,7 +72,7 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
             // now load the eagle widget, so that we can init our solder mask widget
             chilipeppr.load(
                 "#test-eagle",
-                "http://raw.githubusercontent.com/chilipeppr/com-chilipeppr-widget-eagle/master/auto-generated-widget.html",
+                "https://raw.githubusercontent.com/chilipeppr/widget-eagle/master/auto-generated-widget.html",
                 function() {
                     // Callback after widget loaded into #myDivWidgetInsertedInto
                     
@@ -81,7 +89,7 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
                             eagleWidget.init(true);
                             
                             // now init our own widget
-                            soldermask.init(eagleWidget);
+                            pickandplace.init(eagleWidget);
                         }
                     );
                     
@@ -118,18 +126,81 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-soldermask"], function(solde
 } /*end_test*/ );
 
 // This is the main definition of your widget. Give it a unique name.
-cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /* other dependencies here */ ], function() {
+cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready", /* other dependencies here */ ], function() {
     return {
         /**
          * The ID of the widget. You must define this and make it unique.
          */
-        id: "com-chilipeppr-widget-eagle-soldermask", // Make the id the same as the cpdefine id
-        name: "Widget Add-On / Eagle Solder Mask", // The descriptive name of your widget.
-        desc: "This add-on widget is a tab for the Eagle BRD widget that helps you generate a solder mask.", // A description of what your widget does
+        id: "com-chilipeppr-widget-eagle-pickandplace", // Make the id the same as the cpdefine id
+        name: "Widget Add-On / Pick and Place", // The descriptive name of your widget.
+        desc: "This add-on widget is a tab for the Eagle BRD widget that helps you generate gcode for pick and place smd components to a pcb.", // A description of what your widget does
         url: "http://raw.githubusercontent.com/https://master/auto-generated-widget.html", // The final URL of the working widget as a single HTML file with CSS and Javascript inlined. You can let runme.js auto fill this if you are using Cloud9.
         fiddleurl: "http://ide.c9.io/xpix/widget-eagle-pickandplace", // The edit URL. This can be auto-filled by runme.js in Cloud9 if you'd like, or just define it on your own to help people know where they can edit/fork your widget
         githuburl: "http://github.com/https:/", // The backing github repo
         testurl: "http://widget-eagle-pickandplace-xpix.c9users.io/widget.html", // The standalone working widget so can view it working by itself
+        /**
+         * PICK AND PLACE VARIABLES.
+         */
+        pnpholders: {
+            'PNP Holder V0.1': 'pnp_holder_v0.1'
+        },
+        nozzleDiameter: 3,    // noozle diameter in mm
+        // this define the trays, this will later load via ajax 
+        // for every tray holder but for the first time we define here the structure
+        holderCoordinates: {
+            pcbThick: 0.6,    // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
+            sortAxis: 'x',    // Axis for calculate ways
+            safetyHeight: 5,  // safety height for rapid moves
+            structure: {      // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+               feedrate: 100,                               // slow feedrate in mm/min
+               tapeThick: -1,                               // how thick are the tape
+               holeDiameter: 1.5,                           // check parameter "D" in website
+               holeBorderDistance: 1.75,                    // check parameter "E" in website
+               holeDistance: 4.00,                          // check parameter "Po" in website
+               holeComponentDistance:  {y: 3.50, x:2.00 },  // check parameter "F and P2" in website
+            },
+            trays: {
+                // Trays are numbered and pockets has letters
+                // x and y coordinates are realtive to zero point of PNP Holder
+                tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 90 },
+                tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 90 },
+                tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 90 },
+                tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 90 },
+                tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 90 },
+                tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 90 },
+                tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 90 },
+                tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 90 },
+            },
+            pockets: {
+                Pocket_A: { name: 'Pocket A',   width: 15, x: -23, y: 21 },
+                Pocket_B: { name: 'Pocket B',   width: 15, x: -23, y: 52 },
+                Pocket_C: { name: 'Pocket C',   width: 15, x: -23, y: 71 },
+                Pocket_D: { name: 'Pocket D',   width: 15, x: -23, y: 110 },
+                Pocket_E: { name: 'Pocket E',   width: 15, x: -4,  y: 110 },
+                Pocket_F: { name: 'Pocket F',   width: 15, x: -4,  y: 89 },
+                Pocket_G: { name: 'Pocket G',   width: 15, x: 34,  y: 89 },
+                Pocket_H: { name: 'Pocket H',   width: 15, x: 53,  y: 89 },
+                Pocket_I: { name: 'Pocket I',   width: 15, x: 72,  y: 89 },
+                Pocket_K: { name: 'Pocket K',   width: 15, x: 91,  y: 89 },
+                Pocket_L: { name: 'Pocket L',   width: 15, x: 110, y: 89 },
+                // ... etc.pp,
+            },
+        },
+        // buffer for all founded eagle components
+        components: {
+            forTrays: {},
+            forPockets: {},
+            ignored: {},
+        },
+        // http://www.radio-electronics.com/info/data/resistor/smd_resistor/smd_resistor.php
+        packagesTrays: [
+            '1206', '1008', '0805', 
+            '0603', '0402', 'SOT'
+        ],
+        packagesPockets: [
+            'SOIC', 'SOP', 'QFP', 
+            'BGA', 'PLCC', 'SOD', 'DIL.+?SMD'
+        ],
         /**
          * Define pubsub signals below. These are basically ChiliPeppr's event system.
          * ChiliPeppr uses amplify.js's pubsub system so please refer to docs at
@@ -170,9 +241,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             // Define a key:value pair here as strings to document what signals you subscribe to
             // that are owned by foreign/other widgets.
             // '/com-chilipeppr-elem-dragdrop/ondropped': 'Example: We subscribe to this signal at a higher priority to intercept the signal. We do not let it propagate by returning false.'
-        
             '/com-chilipeppr-widget-eagle/addGcode' : 'This add-on subscribes to this signal so we can inject our own Gcode into the overall Eagle Widget gcode.',
-        
             '/com-chilipeppr-widget-3dviewer/recv3dObject' : 'We need to get the 3D Viewer so we can inject stuff into it. We must subscribe to this so when we call /request3dObject we get this signal back with the payload of the viewer.'
         },
         /**
@@ -193,11 +262,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
                 // when we get here, we've got the 3d obj 
                 this.setupUiFromLocalStorage();
                 this.subscribeToAddGcodeSignal();
+                this.subscribeToBeforeRender();
                 this.injectTab();
             });
-
-            //this.btnSetup();
-            //this.forkSetup();
 
             console.log("I am done being initted.");
         },
@@ -210,7 +277,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             var tabHdrEl = $('<li xclass="active">' +
                 '<a href="#' + this.id + 
                 '" role="tab" data-toggle="tab">' +
-                'Solder Mask</a></li>'
+                'Pick&Place</a></li>'
             );
             $('#com-chilipeppr-widget-eagle .panel-body .nav-tabs').append(tabHdrEl);
             
@@ -240,10 +307,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
          * When the user clicks to activate our tab, this event is called.
          */
         onTabShown: function() {
-           
-           this.isTabShowing = true;
-           
-            this.drawSolderMask();
+            this.isTabShowing = true;
+            this.drawpickandplace();
         },
         /**
          * When the user clicks a different tab and this one gets hidden.
@@ -256,99 +321,29 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
          * Iterate through the Eagle BRD dimensions XY coordinates and draw
          * a solder mask over the board.
          */
-        drawSolderMask: function() {
+        drawpickandplace: function() {
             // add a green solder mask layer on top of the PCB
             console.log("eagleWidget:", this.eagleWidget, 
                 "clipperDimension:", this.eagleWidget.clipperDimension);
 
-            var rectShape = new THREE.Shape();
-
-            // use the dimensions and create our plane
-            var pt, lastPt;
-            for (var indx = 0; indx < this.eagleWidget.clipperDimension.length; indx++) {
-               
-                pt = this.eagleWidget.clipperDimension[indx];
-                //console.log("dimension pt:", pt);
-                if (lastPt && pt.X == lastPt.X && pt.Y == lastPt.Y) {
-                    // duplicate pt, skip it
-                    //console.log("skip pt:", pt);
-                    continue;
-                }
-                
-                if (indx == 0) rectShape.moveTo(pt.X, pt.Y);
-                else rectShape.lineTo(pt.X, pt.Y);
-                
-                lastPt = pt;
-            }
-            
-            // now remove the pads & smds
-            
-            // append cloned arrays together
-            //var padsSmds = this.eagleWidget.clipperPads.slice();
-            //padsSmds.push.apply(padsSmds, this.eagleWidget.clipperSmds.slice());
-            var padsSmds = [].concat( 
-                this.eagleWidget.clipperPads, 
-                this.eagleWidget.clipperSmds
-            );
-            
-            //for (var i = 0; i < this.eagleWidget.clipperPads.length; i++) {
-            for (var i = 0; i < padsSmds.length; i++) {
-                
-                var padPts = padsSmds[i];
-                
-                // each pad will have multiple points in an array
-                var padHole = new THREE.Path(); 
-                
-                var pt, lastPt;
-                for (var indx = 0; indx < padPts.length; indx++) {
-                   
-                    pt = padPts[indx];
-                    console.log("pad pt:", pt);
-                    if (lastPt && pt.X == lastPt.X && pt.Y == lastPt.Y) {
-                        // duplicate pt, skip it
-                        console.log("skip pad pt:", pt);
-                        continue;
-                    }
-                    
-                    if (indx == 0) padHole.moveTo(pt.X, pt.Y);
-                    else padHole.lineTo(pt.X, pt.Y);
-                    
-                    lastPt = pt;
-                }
-                
-                console.log("pushing hole:", padHole);
-                rectShape.holes.push(padHole);
-
-            }
-            
-            
-            /*
-            var padHole = new THREE.Path(); 
-            windowHole.moveTo(-2,-2);
-            windowHole.lineTo(0,-2);
-            windowHole.lineTo(0,0);
-            windowHole.lineTo(-2,0);
-            windowHole.lineTo(-2,-2);
-            shape.holes.push(windowHole);
-            */
-            
-            var rectGeom = new THREE.ShapeGeometry( rectShape );
-            var rectMesh = new THREE.Mesh( rectGeom, new THREE.MeshPhongMaterial( { 
-                color: 0x2e694b, 
-                transparent: true,
-                opacity: 0.5,
-                side: THREE.DoubleSide
-            } ) ) ;
-            rectMesh.position.setZ(1);
-            this.mask3d = rectMesh;
-            this.sceneAdd( this.mask3d );
+            // this.mask3d = rectMesh;
+            // this.sceneAdd( this.mask3d );
         },
         /**
          * We subscribe to the main Eagle Widget's addGcode publish signal
          * so that we can inject our own Gcode to the main widget.
          */
         subscribeToAddGcodeSignal: function() {
+            console.log('run subscribeToAddGcodeSignal');
             chilipeppr.subscribe("/com-chilipeppr-widget-eagle/addGcode", this, this.onAddGcode);
+        },
+        /**
+         * We subscribe to the main Eagle Widget's addGcode publish signal
+         * so that we can inject our own Gcode to the main widget.
+         */
+        subscribeToBeforeRender: function() {
+            console.log('run /com-chilipeppr-widget-eagle/beforeToolPathRender');
+            chilipeppr.subscribe("/com-chilipeppr-widget-eagle/beforeToolPathRender", this, this.onBeforeRender);
         },
         /**
          * This is our callback that gets called when the /com-chilipeppr-widget-eagle/addGcode
@@ -357,19 +352,354 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
          */
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
-            addGcodeCallback(1500, this.exportGcodeSoldermask(eagleWidget) );
+            addGcodeCallback(1500, this.exportGcodepickandplace(eagleWidget) );
+        },
+        /**
+         * After Render Register all components and sort to the trays and pockets
+         */
+        onBeforeRender : function(that){
+            console.log("Get onBeforeRender:", that);
+            this.registerEagleComponents(that);
+            this.sortTrayComponents();
+            this.sortPocketComponents();
+            this.setupComponentsTable();
+        },
+        setupComponentsTable: function(){
+            console.group("setupComponentsTable");
+            var tableRows = [], 
+                that = this;
+
+            var buildRow = function(elemValue){
+               var data = that.components.forTrays[ elemValue ] 
+                            || that.components.forPockets[ elemValue ];
+               var names = [];
+               for(var value in data){
+                  names.push(data[value].name);
+               }
+               // collect data and display in a table row
+               if($.type(data) == 'object')
+                   tableRows.push([
+                      (Object.keys(data).length -1),
+                      elemValue,
+                      Object.keys(data).slice(0,-1).join(', '),
+                      names.join(', '),
+                      '<select id="trays_' + elemValue.replace(/\./ig, '_') + '" class="pnp-select" />'
+                   ]);  
+            }
+
+            // setup table content
+            for (var elemValue in this.components.forTrays) {
+                buildRow(elemValue);
+            }
+            for (var elemValue in this.components.forPockets ) {
+                buildRow(elemValue);
+            }
+            this.table('#pnp-component-list', tableRows);
+
+            // Fill selectboxes
+            var output = function(entry){ 
+               return entry.name + ' (' + entry.width + 'mm)';
+            };
+            var buildSelectbox = function(elemValue, type){
+               var d = that.components.forTrays[ elemValue ]
+                        || that.components.forPockets[ elemValue ];
+               if($.type(d) == 'object')
+                   that.selectbox(
+                      '#trays_' + elemValue.replace(/\./ig, '_'), 
+                      that.holderCoordinates[ type ],
+                      output, 
+                      (type == 'trays' ? d.TRAY : d.POCKET) 
+                   );
+            }
+            for (var elemValue in this.components.forTrays) {
+                buildSelectbox(elemValue, 'trays');
+            }
+            for (var elemValue in this.components.forPockets) {
+                buildSelectbox(elemValue, 'pockets');
+            }
+
+            console.groupEnd();
+        },
+        registerEagleComponents: function(self){
+            console.group("registerEagleComponents");
+            
+            // refresh, remove old entrys
+            this.components['forTrays'] = {};
+            this.components['forPockets'] = {};
+            this.components['ignored'] = {};
+            
+            // Analyze the eagle elements and save this in a local buffer 
+            // sorted by trays or pockets and his values or names      
+            for (var elemKey in self.eagle.elements) {
+                var elem = self.eagle.elements[elemKey];
+                var pkg = self.eagle.packagesByName[elem.pkg];
+                this.packagesByName = self.eagle.packagesByName;
+                console.log("working on element:", elem, pkg);
+
+                // sort all components to tray or pockets sortet via value
+                var that = this,
+                    found = 0;
+                var key = elem.value || elem.name;
+                key = key.replace(/\./ig, '-');
+
+                // try to find in packagesTray
+                this.packagesTrays.forEach(function(type){
+                    var re = new RegExp(type, 'gi');
+                    if(pkg.name.match(re)){
+                        found++
+                        if(that.components['forTrays'][key] === undefined)
+                           that.components['forTrays'][key] = {};
+                        that.components['forTrays'][key][elem.name] = elem;
+                    }
+                });
+
+                // try to find in packagesPockets
+                if(found == 0)
+                    this.packagesPockets.forEach(function(type){
+                        var re = new RegExp(type, 'gi');
+                        if(pkg.name.match(re)){
+                            found++
+                            if(that.components['forPockets'][key] === undefined)
+                               that.components['forPockets'][key] = {};
+                            that.components['forPockets'][key][elem.name] = elem;
+                        }
+                    });
+                if(found == 0){
+                    if(that.components['ignored'][key] === undefined)
+                       that.components['ignored'][key] = {};
+                    that.components['ignored'][key][elem.name] = elem;
+                }
+
+            }
+            console.groupEnd();
+        },
+        sortTrayComponents: function(){
+            console.group("sortTrayComponents");
+            // calculate distace and sort components to tray numbers
+            var sorthash = [];
+            var sortaxis = this.components.forTrays.sortAxis; // TODO: use this sortaxis
+            for (var elemValue in this.components.forTrays) {
+                var sum = 0, i = 0;
+                for (var elemKey in this.components.forTrays[elemValue]) {
+                    sum += this.components.forTrays[elemValue][elemKey].x;
+                }
+                sorthash.push( {k: elemValue, v: (sum / i).toFixed(4)} );
+            }
+            // sort from min to max
+            sorthash.sort(function (a, b) {
+                return ( a.v - b.v );
+            });
+            console.log('PNP sorthash', sorthash);
+
+            var trays = [];
+            $.each(this.holderCoordinates.trays, function(key, value) {
+               // make all trays to width = 8mm ... done
+               trays.push( {k: key, v: value.x} ); // try to get sortAxis
+            });
+            trays.sort(function (a, b) {
+                return ( b.v - a.v );
+            });
+            console.log('PNP trayssort', trays);
+
+            // set element to tray
+            var i = 0, that = this;
+            sorthash.forEach(function(entry){
+                entry.t = trays[i++].k;                      
+                that.components.forTrays[entry.k]['TRAY'] = entry.t;
+            });
+            console.log('PNP Object: ', this);
+
+            console.groupEnd();
+
+            return sorthash;
+        },
+        sortPocketComponents: function(){
+            console.group("sortPocketComponents");
+            // calculate distace and sort components to tray numbers
+            var sorthash = [];
+            for (var elemValue in this.components.forPockets ) {
+                var sum = 0, i = 0;
+                for (var elemKey in this.components.forPockets[elemValue]) {
+                    sum += this.components.forPockets[elemValue][elemKey].x + this.components.forPockets[elemValue][elemKey].y;
+                }
+                sorthash.push( {k: elemValue, v: (sum / i).toFixed(4)} );
+            }
+            // sort from min to max
+            sorthash.sort(function (a, b) {
+                return ( a.v - b.v );
+            });
+            console.log('PNP sorthash', sorthash);
+
+            var pockets = [];
+            $.each(this.holderCoordinates.pockets, function(key, value) {
+               // make all trays to width = 8mm ... done
+               pockets.push( {k: key, v: (value.x + value.y)} ); // try to get sortAxis
+            });
+            pockets.sort(function (a, b) {
+                return ( a.v - b.v );
+            });
+            console.log('PNP pocketssort', pockets);
+
+            // set element to tray
+            var i = 0, that = this;
+            sorthash.forEach(function(entry){
+                entry.t = pockets[i++].k;                      
+                that.components.forPockets[entry.k]['POCKET'] = entry.t;
+            });
+            console.log('PNP Object: ', this);
+
+            console.groupEnd();
+
+            return sorthash;
+        },
+        /** 
+         * empty and fill select box 
+        */
+        selectbox: function(id, hash, outcallback, selected){
+            $(id).find('option').remove().end();
+            if(selected !== undefined)
+               $(id).append(
+                  $('<option></option>').val('').html('not selected')
+               );
+            $.each(hash, function(key, value) {
+                $(id).append(
+                    $('<option></option>').val(key).html(( outcallback ? outcallback(value) : key))
+                );
+            });
+            if(selected !== undefined)
+               $(id).val(selected);
+        },
+        /** 
+         * empty and fill table 
+        */
+        table: function(id, array){
+            $(id).find("tr:gt(0)").remove();
+            $.each(array, function(idx, entry) {
+                var content = '<tr>';
+                $.each(entry, function(idx, value) {
+                    content += '<td>' + value + '</td>';  
+                });
+                content += '</tr>';
+                $(id + ' tr:last').after(content);        
+            });
         },
         /**
          * Generate the gcode for the solder mask
          */
-        exportGcodeSoldermask: function(eagleWidget) {
-
+        exportGcodepickandplace: function(eagleWidget) {
             var g = "";
-            g += "(------ Solder Mask Laser Ablation -------)\n";
-            g += "( Each pad/smd is zig zag scanned to ablate )\n";
-            g += "( the solder mask over the copper. Use a UV )\n";
-            g += "( laser of 1 watt )\n";
+            g += "(------ Pick and Place Moves -------)\n";
+            g += "( Each smd component has a pick&place strategy )\n";
+            g += "( this use a vacuum suction solenoid and stepper to rotate sm in correct position )\n";
+            g += "( use a special PnP Holder )\n";
+
+            /* 
+            Strategy to get a component and place it
+            iterate over components.forTrays
+            create follow plan:
+
+               1. move to zero point of tray
+               2. call this.tapeStrategy(cmp) to get component from tray
+               3. call vacum(true) to generate special command 
+               4. move to cmp position
+               5. call vacum(false) to generate special command
+            */
+            for (var elemValue in this.components.forTrays) {
+               var evalue = this.components.forTrays[ elemValue ];
+               for (var cmpName in evalue ) {
+                  if($.type(evalue[cmpName]) != 'object')
+                     continue; // ignore tray entrys
+
+                  // get cmp from tray
+                  g += this.tapeStrategy( evalue[cmpName], evalue['TRAY'] );
+                  g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
+                  g += this.putStrategy( evalue[cmpName] );
+               }
+            }
+
+            for (var elemValue in this.components.forPockets ) {
+               var evalue = this.components.forPockets[ elemValue ];
+               for (var cmpName in evalue ) {
+                  if($.type(evalue[cmpName]) != 'object')
+                     continue; // ignore tray entrys
+
+                  // get cmp from tray
+                  g += this.pocketStrategy( evalue[cmpName], evalue['POCKET'] );
+                  g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
+                  g += this.putStrategy( evalue[cmpName] );
+               }
+            }
+
+            console.log('PNP gcode: ', g);
+
             return g;
+        },
+        putStrategy: function(cmp){
+           var g = "";
+           g += "(---- put " + cmp.name + " to pcb" + " ----- )\n";
+
+           // TODO: add rotate gcode for second controller
+
+           g += "G0 Z" + this.holderCoordinates.pcbThick +  "\n"; // move down to pcb surface
+           g += "(chilipeppr_pause vacuum false)\n"; // vacuum off
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           
+           return g;
+        },
+        size: function(cmp){
+            var bbox = this.packagesByName[cmp.pkg].bbox, 
+                dx = 0, 
+                dy = 0;
+            dx = (Math.abs(bbox[0]) + Math.abs(bbox[2]));
+            dy = (Math.abs(bbox[1]) + Math.abs(bbox[3]));
+            return { dx: dx, dy: dy };
+        },
+        // please check this: 
+        // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+        pocketStrategy: function(cmp, pocketname){
+           var g = "";
+           g += "(---- get " + cmp.name + " from " + pocketname + " ----- )\n";
+           var structure = this.holderCoordinates.structure;
+           var pocket = this.holderCoordinates.pockets[ pocketname ];
+           var size = this.size(cmp);
+
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 X" + pocket.x + "Y" + pocket.y + "\n";         // now we moved to zero pint of tray
+
+           g += "G91" + "\n";                                  // set to relative coordination system
+           g += "G0 X"+ (size.dx/2).toFixed(4) + " Y" + (size.dy/2).toFixed(4) + " Z-" + this.holderCoordinates.safetyHeight + "\n";
+           g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
+
+           g += "G90" + "\n";                                  // set to relative coordination system
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           
+           return g;
+        },
+        // please check this: 
+        // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+        tapeStrategy: function(cmp, trayname){
+           var g = "";
+           g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
+           var tray = this.holderCoordinates.trays[ trayname ];
+           var structure = this.holderCoordinates.structure;
+           var dia = this.nozzleDiameter;
+           
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 X" + tray.x + "Y" + tray.y + "\n";         // now we moved to zero pint of tray
+
+           g += "G91" + "\n";                                  // set to relative coordination system
+           g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
+           g += "G0 Z-" + this.holderCoordinates.safetyHeight  + "\n";      // go down to zero  z-axis
+           g += "G1 F" + structure.feedrate + "Z" + (structure.tapeThick/2)  + "\n";      // go into the hole
+           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + (dia/2))  + "\n"; // go up in Y Axis to get next component
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z-" + this.holderCoordinates.safetyHeight + " Y-" + structure.holeComponentDistance.y + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
+           g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
+
+           g += "G90" + "\n";                                  // set to relative coordination system
+           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           
+           return g;
         },
         get3dObj: function (callback) {
             this.userCallbackForGet3dObj = callback;
@@ -444,7 +774,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             this.options = options;
             console.log("options:", options);
 
-
+            // init ui 
+            var that = this;            
+            this.selectbox('#pnpholders', this.pnpholders);
+            $('#pnp-refresh').click(function(evt){
+               that.setupComponentsTable();
+            });
         },
         /**
          * When a user changes a value that is stored as an option setting, you
@@ -495,7 +830,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
             });
 
         },
-
+        // i.e.: this.searchObj(this.components.forTrays, 'TRAY', 'tray_6')
+        searchObj: function(obj, path, search){
+            var result = null;
+            for (var name in obj) {
+               if(obj[name][path] == search){
+                  if(result == null)
+                     result = [];
+                  result.push(name);
+               }
+            }
+            return result;
+        },
     }
 });
     //]]>
@@ -504,14 +850,66 @@ cpdefine("inline:com-chilipeppr-widget-eagle-soldermask", ["chilipeppr_ready", /
 </head>
 
 <body>
-    
-    <div id="com-chilipeppr-widget-eagle-soldermask" class="tab-pane hidden">
 
-        <button type="button" class="btn btn-xs btn-default btn-eagle-sendgcodetows" style="margin: 4px 0;">Send Gcode to Workspace</button>
+   <div id="com-chilipeppr-widget-eagle-pickandplace" class="tab-pane hidden">
+      <div class="panel eagle-advanced" style="margin-bottom:10px;">
+      <!-- Dispense Setting -->
+        <div class="btn-group">
+           <button type="button" data-toggle="modal" data-target="#com-chilipeppr-widget-pickandplace-window" id="btn-pnp-trays" class="btn btn-xs btn-default" style="margin: 4px 0;">Configure trays</button> 
+        </div>
+        <div class="input-group">
+           <select id="pnpholders" class="form-control pnpholders"></select>
+        </div>
+       <p class="descriptive-text">
+         Model of the Pick and place Holder.
+       </p>
+      
+      </div> 
 
-        <h2 style="margin-top:10px;">Solder Mask</h2>
-                
-    </div>
+      <!-- Modal -->
+      <div id="com-chilipeppr-widget-pickandplace-window" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+      
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Configure component trays.</h4>
+            </div>
+            <div class="modal-body">
+               <div class="panel panel-default">
+                 <!-- Standard-Panel-Inhalt -->
+                 <div class="panel-heading">
+                     Sorted components to tray's and pocket's
+                     <button type="button" id="pnp-refresh" class="btn btn-default">Refresh</button>
+                </div>
+                 <div class="table-responsive">          
+                 <table id="pnp-component-list" class="table">
+                   <thead>
+                     <tr>
+                       <th>Count</th>
+                       <th>Value</th>
+                       <th>Package</th>
+                       <th>Names</th>
+                       <th>Tray</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                   </tbody>
+                 </table>
+               </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+
+   </div> 
+
     
 </body>
 
