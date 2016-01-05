@@ -333,6 +333,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             this.sortPocketComponents();
             this.setupComponentsTable();
         },
+        /**
+         * Display table with all components sortet to the trays and pockets.
+         */
         setupComponentsTable: function(){
             console.group("setupComponentsTable");
             var tableRows = [], 
@@ -389,6 +392,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             console.groupEnd();
         },
+        /**
+         * Read all eagle components and decide for try or pocket or ignore.
+         */
         registerEagleComponents: function(self){
             console.group("registerEagleComponents");
             
@@ -442,6 +448,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             }
             console.groupEnd();
         },
+        /**
+         * Sort all components to trays for the shortest move between tray and component place.
+         */
         sortTrayComponents: function(){
             console.group("sortTrayComponents");
             // calculate distace and sort components to tray numbers
@@ -482,6 +491,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             return sorthash;
         },
+        /**
+         * Sort all components to pockets for the shortest move between pocket and component place.
+         */
         sortPocketComponents: function(){
             console.group("sortPocketComponents");
             // calculate distace and sort components to tray numbers
@@ -522,7 +534,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             return sorthash;
         },
         /** 
-         * empty and fill select box 
+         * empty and fill html select box 
         */
         selectbox: function(id, hash, outcallback, selected){
             $(id).find('option').remove().end();
@@ -539,7 +551,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                $(id).val(selected);
         },
         /** 
-         * empty and fill table 
+         * empty and fill html table 
         */
         table: function(id, array){
             $(id).find("tr:gt(0)").remove();
@@ -553,7 +565,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             });
         },
         /**
-         * Generate the gcode for the solder mask
+         * Generate the gcode for pnp
          */
         exportGcodepickandplace: function(eagleWidget) {
             var g = "";
@@ -603,6 +615,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             return g;
         },
+        /**
+         * Strategy in gcode to put a cmp to pcb.
+         */
         putStrategy: function(cmp){
            var g = "";
            g += "(---- put " + cmp.name + " to pcb" + " ----- )\n";
@@ -615,6 +630,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            
            return g;
         },
+        /**
+         * return width and height from cmp.
+         */
         size: function(cmp){
             var bbox = this.packagesByName[cmp.pkg].bbox, 
                 dx = 0, 
@@ -625,6 +643,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         // please check this: 
         // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+        /**
+         * return gcode to get cmp from pocket.
+         */
         pocketStrategy: function(cmp, pocketname){
            var g = "";
            g += "(---- get " + cmp.name + " from " + pocketname + " ----- )\n";
@@ -646,6 +667,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         // please check this: 
         // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+        /**
+         * return gcode to get cmp from tape.
+         */
         tapeStrategy: function(cmp, trayname){
            var g = "";
            g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
@@ -670,6 +694,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            
            return g;
         },
+        /**
+         * return 3dobject from 3dviewer.
+         */
         get3dObj: function (callback) {
             this.userCallbackForGet3dObj = callback;
             chilipeppr.subscribe("/com-chilipeppr-widget-3dviewer/recv3dObject", this, this.get3dObjCallback);
