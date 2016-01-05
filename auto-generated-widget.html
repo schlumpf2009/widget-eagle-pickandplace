@@ -396,7 +396,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
 
-            if( $('onlypnpgcode').checked() ){
+            if( $('#onlypnpgcode').is(':checked') ){
                 // remove all milling code for testing or to choose only pnp
                 gcodeParts[200] = undefined;
                 gcodeParts[300] = undefined;
@@ -941,13 +941,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         <div class="input-group">
            <select id="pnpholders" class="form-control pnpholders"></select>
         </div>
-        <div class="input-group">
-           <input type="checkbox" id="onlypnpgcode" class="form-control pnpholders" xdisabled />>
+        <p class="descriptive-text">
+            Model of the Pick and place Holder.
+        </p>
+        <div class="checkbox">
+        <label>
+            <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
+        </label>
         </div>
-       <p class="descriptive-text">
-         Model of the Pick and place Holder.
-       </p>
-      
+
       </div> 
 
       <!-- Modal -->
