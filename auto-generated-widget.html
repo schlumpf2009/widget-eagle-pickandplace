@@ -12,6 +12,7 @@
     <!-- Customized version of require.js for ChiliPeppr. Please see require.js docs for how
     ChiliPeppr's dependency system works as it's based on require.js. -->
     <script type='text/javascript' src="//i2dcui.appspot.com/js/require.js"></script>
+    <script type='text/javascript' src="http://learningthreejs.com/data/constructive-solid-geometry-with-csg-js/vendor/csg.js"></script>
 
     <style type='text/css'>
 /* CSS for ChiliPeppr Widget */
@@ -148,10 +149,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         // this define the trays, this will later load via ajax 
         // for every tray holder but for the first time we define here the structure
         holderCoordinates: {
-            pcbThick: 0.6,    // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
-            sortAxis: 'x',    // Axis for calculate ways
-            safetyHeight: 5,  // safety height for rapid moves
-            structure: {      // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+            size: {dx: 260, dy:130, dz: 10},
+            zero: {x: 6, y: 55},   // calculated from center of platform
+            pcbThick: 0.6,          // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
+            sortAxis: 'x',          // Axis for calculate ways
+            safetyHeight: 5,        // safety height for rapid moves
+            structure: {            // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
                feedrate: 100,                               // slow feedrate in mm/min
                tapeThick: -1,                               // how thick are the tape
                holeDiameter: 1.5,                           // check parameter "D" in website
@@ -300,9 +303,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         isTabShowing: false,
         /**
-         * Holds the solder mask 3d object that we show in the 3D viewer.
+         * Holds the pnp 3d object that we show in the 3D viewer.
          */
-        mask3d: null,
+        pnp3d: null,
         /**
          * When the user clicks to activate our tab, this event is called.
          */
@@ -315,19 +318,59 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         onTabHide: function() {
             this.isTabShowing = false;
-            this.sceneRemove(this.mask3d);
+            this.sceneRemove(this.pnp3d);
         },
         /**
          * Iterate through the Eagle BRD dimensions XY coordinates and draw
          * a solder mask over the board.
          */
         drawpickandplace: function() {
-            // add a green solder mask layer on top of the PCB
-            console.log("eagleWidget:", this.eagleWidget, 
-                "clipperDimension:", this.eagleWidget.clipperDimension);
+            var platform = this.drawPlatform();
+            var trays = this.drawTrays();
+            var that = this;
+            
+            this.sceneAdd( platform );
+            trays.forEach(function(tray){
+                that.sceneAdd( tray );
+            });
+        },
+        drawTrays: function(){
+            var trays = [];
+            var material = new THREE.MeshPhongMaterial( {
+                color: 0xeeeeee, 
+                shading: THREE.FlatShading,
+                polygonOffset: true,
+                polygonOffsetFactor: 1, // positive value pushes polygon further away
+                polygonOffsetUnits: 1
+            } );
 
-            // this.mask3d = rectMesh;
-            // this.sceneAdd( this.mask3d );
+            for (var trayname in this.holderCoordinates.trays) {
+                var geometry = new THREE.BoxGeometry( this.holderCoordinates.trays[trayname].width  , this.holderCoordinates.size.dy, Math.abs( this.holderCoordinates.structure.tapeThick ) );
+                var tape = new THREE.Mesh( geometry, material );
+                tape.position.set( 
+                    this.holderCoordinates.trays[trayname].x,
+                    this.holderCoordinates.zero.y,
+                    (this.holderCoordinates.structure.tapeThick/2)
+                );
+                trays.push(tape);
+            }
+
+            return trays;
+        },
+        drawPlatform: function(){
+            // Build box as platform
+            var geometry = new THREE.BoxGeometry( this.holderCoordinates.size.dx , this.holderCoordinates.size.dy, this.holderCoordinates.size.dz );
+            var material = new THREE.MeshBasicMaterial( {
+                color: 0xaaaaaa, 
+                wireframe: true
+            } );
+            var platform = new THREE.Mesh( geometry, material );
+            platform.position.set( 
+                this.holderCoordinates.zero.x, 
+                this.holderCoordinates.zero.y, 
+                (0 - (this.holderCoordinates.size.dz/2))-1
+            );
+            return platform;
         },
         /**
          * We subscribe to the main Eagle Widget's addGcode publish signal
@@ -352,6 +395,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
+
+            if( $('onlypnpgcode').checked() ){
+                // remove all milling code for testing or to choose only pnp
+                gcodeParts[200] = undefined;
+                gcodeParts[300] = undefined;
+                gcodeParts[400] = undefined;
+                gcodeParts[500] = undefined;
+                gcodeParts[600] = undefined;
+                gcodeParts[700] = undefined;
+            }
+            
             addGcodeCallback(1500, this.exportGcodepickandplace(eagleWidget) );
         },
         /**
@@ -886,6 +940,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         </div>
         <div class="input-group">
            <select id="pnpholders" class="form-control pnpholders"></select>
+        </div>
+        <div class="input-group">
+           <input type="checkbox" id="onlypnpgcode" class="form-control pnpholders" xdisabled />>
         </div>
        <p class="descriptive-text">
          Model of the Pick and place Holder.
