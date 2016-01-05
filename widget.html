@@ -32,14 +32,66 @@
 </head>
 
 <body>
-    
-    <div id="com-chilipeppr-widget-eagle-soldermask" class="tab-pane hidden">
 
-        <button type="button" class="btn btn-xs btn-default btn-eagle-sendgcodetows" style="margin: 4px 0;">Send Gcode to Workspace</button>
+   <div id="com-chilipeppr-widget-eagle-pickandplace" class="tab-pane hidden">
+      <div class="panel eagle-advanced" style="margin-bottom:10px;">
+      <!-- Dispense Setting -->
+        <div class="btn-group">
+           <button type="button" data-toggle="modal" data-target="#com-chilipeppr-widget-pickandplace-window" id="btn-pnp-trays" class="btn btn-xs btn-default" style="margin: 4px 0;">Configure trays</button> 
+        </div>
+        <div class="input-group">
+           <select id="pnpholders" class="form-control pnpholders"></select>
+        </div>
+       <p class="descriptive-text">
+         Model of the Pick and place Holder.
+       </p>
+      
+      </div> 
 
-        <h2 style="margin-top:10px;">Solder Mask</h2>
-                
-    </div>
+      <!-- Modal -->
+      <div id="com-chilipeppr-widget-pickandplace-window" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+      
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Configure component trays.</h4>
+            </div>
+            <div class="modal-body">
+               <div class="panel panel-default">
+                 <!-- Standard-Panel-Inhalt -->
+                 <div class="panel-heading">
+                     Sorted components to tray's and pocket's
+                     <button type="button" id="pnp-refresh" class="btn btn-default">Refresh</button>
+                </div>
+                 <div class="table-responsive">          
+                 <table id="pnp-component-list" class="table">
+                   <thead>
+                     <tr>
+                       <th>Count</th>
+                       <th>Value</th>
+                       <th>Package</th>
+                       <th>Names</th>
+                       <th>Tray</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                   </tbody>
+                 </table>
+               </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+
+   </div> 
+
     
 </body>
 
