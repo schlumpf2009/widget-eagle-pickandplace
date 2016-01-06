@@ -824,6 +824,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             console.log("options:", options);
             
             var that = this;
+            // get safetyHeight from user
             $('#safetyHeight').change(function(evt) {
                 console.log("evt:", evt);
                 that.holderCoordinates.safetyHeight = evt.currentTarget.valueAsNumber;
