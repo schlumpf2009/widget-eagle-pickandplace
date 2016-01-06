@@ -948,14 +948,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         </div>
 
         <div class="form-group">
-            Inflate Milling Path By
+            Safety height
             <div class="input-group">
-                <input class="form-control inflate-by" type="number" placeholder="" value="0.35" />
+                <input id="safetyHeight" class="form-control" type="number" placeholder="" value="5" />
                 <div class="input-group-addon">mm</div>
             </div>
-            <p class="descriptive-text">Inflate your milling path by half the diameter of your endmill. If you are using a 0.5mm endmill, then enter 0.25mm above. If you are using a V-bit then figure out the diameter based on how deep you'll mill. Copper on FR4 is usually
-                1 oz = 0.035mm, 2 oz = 0.07mm, 3 oz = 0.105mm thick. If you use ChiliPeppr's Auto-Level, you could safely mill with depths of 1 oz = 0.07mm, 2 oz = 0.1mm (most popular), 3 oz = 0.15mm. That means a V-bit with a 45&deg; angle
-                at 0.1mm depth will have a diameter of roughly 0.1mm. So, you could use 0.05mm above, however, in practice it would be best to inflate further than that to be safe.</p>
+            <p class="descriptive-text">safe.</p>
         </div>
 
         <div class="input-group">
