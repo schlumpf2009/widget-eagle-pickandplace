@@ -822,6 +822,13 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             this.options = options;
             console.log("options:", options);
+            
+            var that = this;
+            $('#safetyHeight').change(function(evt) {
+                console.log("evt:", evt);
+                that.holderCoordinates.safetyHeight = evt.currentTarget.valueAsNumber;
+            });
+
 
             // init ui 
             var that = this;            
