@@ -854,14 +854,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             this.options = options;
             console.log("options:", options);
-            
-            var that = this;
-            // get safetyHeight from user
-            $('#safetyHeight').change(function(evt) {
-                console.log("evt:", evt);
-                that.holderCoordinates.safetyHeight = evt.currentTarget.valueAsNumber;
-            });
-
 
             // init ui 
             var that = this;            
@@ -869,6 +861,33 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             $('#pnp-refresh').click(function(evt){
                that.setupComponentsTable();
             });
+
+            // register input field 'safetyHeight' to change and options
+            that.reginput('safetyHeight', that.holderCoordinates.safetyHeight);
+            
+            that.reginput();
+        },
+        /**
+         * Register input field as change event and as entry in this.options.
+         * also recognize loaded data from localspace (options)
+         */
+        reginput: function(field, entry){
+            var that = this;
+            if(field !== undefined){
+                // get field input from user and register a changed event
+                $('#' + field).change(function(evt) {
+                    console.log("evt:", evt);
+                    entry = evt.currentTarget.valueAsNumber;
+                    that.options[field] = entry;
+                    that.saveOptionsLocalStorage();
+                });
+            }
+            else {
+                for(var key in that.options){
+                    // read from options, set and trigger change
+                    $('#' + key).val(that.options[key]).trigger('change');
+                }
+            }
         },
         /**
          * When a user changes a value that is stored as an option setting, you
