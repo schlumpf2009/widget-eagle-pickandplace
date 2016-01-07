@@ -12,7 +12,6 @@
     <!-- Customized version of require.js for ChiliPeppr. Please see require.js docs for how
     ChiliPeppr's dependency system works as it's based on require.js. -->
     <script type='text/javascript' src="//i2dcui.appspot.com/js/require.js"></script>
-    <script type='text/javascript' src="http://learningthreejs.com/data/constructive-solid-geometry-with-csg-js/vendor/csg.js"></script>
 
     <style type='text/css'>
 /* CSS for ChiliPeppr Widget */
@@ -145,6 +144,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         pnpholders: {
             'PNP Holder V0.1': 'pnp_holder_v0.1'
         },
+        rotateAxis: 'Y',      // Rotation axis on the second controller
         nozzleDiameter: 3,    // noozle diameter in mm
         // this define the trays, this will later load via ajax 
         // for every tray holder but for the first time we define here the structure
@@ -154,6 +154,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             pcbThick: 0.6,          // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
             sortAxis: 'x',          // Axis for calculate ways
             safetyHeight: 5,        // safety height for rapid moves
+            pcbholder: {dx: 120, dy: 80, deep: -1}, // dimensions of pcb holder
             structure: {            // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
                feedrate: 100,                               // slow feedrate in mm/min
                tapeThick: -1,                               // how thick are the tape
@@ -181,12 +182,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 Pocket_D: { name: 'Pocket D',   width: 15, x: -23, y: 110 },
                 Pocket_E: { name: 'Pocket E',   width: 15, x: -4,  y: 110 },
                 Pocket_F: { name: 'Pocket F',   width: 15, x: -4,  y: 89 },
-                Pocket_G: { name: 'Pocket G',   width: 15, x: 34,  y: 89 },
-                Pocket_H: { name: 'Pocket H',   width: 15, x: 53,  y: 89 },
-                Pocket_I: { name: 'Pocket I',   width: 15, x: 72,  y: 89 },
-                Pocket_K: { name: 'Pocket K',   width: 15, x: 91,  y: 89 },
-                Pocket_L: { name: 'Pocket L',   width: 15, x: 110, y: 89 },
-                // ... etc.pp,
+                Pocket_G: { name: 'Pocket G',   width: 15, x: 15,  y: 89 },
+                Pocket_H: { name: 'Pocket G',   width: 15, x: 34,  y: 89 },
+                Pocket_I: { name: 'Pocket H',   width: 15, x: 53,  y: 89 },
+                Pocket_K: { name: 'Pocket I',   width: 15, x: 72,  y: 89 },
+                Pocket_L: { name: 'Pocket K',   width: 15, x: 91,  y: 89 },
+                Pocket_M: { name: 'Pocket L',   width: 15, x: 110, y: 89 },
             },
         },
         // buffer for all founded eagle components
@@ -291,9 +292,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             
             var that = this;
             $('#com-chilipeppr-widget-eagle a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                console.log("tab shown. e:", e);
-                var target = $(e.target).attr("href") // activated tab
-                if (target.match(/#com-chilipeppr-widget-eagle/)) {
+                console.log("PNP tab shown. e:", $(e.target).attr("href"));
+                var target = $(e.target).attr("href"); // activated tab
+                if (target.match(/#com-chilipeppr-widget-eagle-pickandplace/)) {
                     // we just got shown
                     that.onTabShown();
                 } else {
@@ -317,6 +318,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * When the user clicks a different tab and this one gets hidden.
          */
         onTabHide: function() {
+            console.log('PNP tab hide');
             this.isTabShowing = false;
             this.sceneRemove(this.pnp3d);
         },
@@ -325,51 +327,147 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * a solder mask over the board.
          */
         drawpickandplace: function() {
-            var platform = this.drawPlatform();
-            var trays = this.drawTrays();
             var that = this;
-            
+
+            var platform = this.drawPlatform();
             this.sceneAdd( platform );
+            var helper = new THREE.EdgesHelper( platform, 0xffffff );
+            helper.material.linewidth = 1;
+            this.sceneAdd( helper );
+
+
+            var trays = this.drawTrays();
             trays.forEach(function(tray){
                 that.sceneAdd( tray );
             });
+
+            that.sceneAdd(
+                this.drawPCBHolder()
+            );
         },
-        drawTrays: function(){
-            var trays = [];
+        drawPCBHolder: function(){
             var material = new THREE.MeshPhongMaterial( {
-                color: 0xeeeeee, 
+                color: 0xff9999, 
                 shading: THREE.FlatShading,
                 polygonOffset: true,
                 polygonOffsetFactor: 1, // positive value pushes polygon further away
                 polygonOffsetUnits: 1
             } );
+            var geometry = new THREE.BoxGeometry( 
+                this.holderCoordinates.pcbholder.dx, 
+                this.holderCoordinates.pcbholder.dy,
+                Math.abs( this.holderCoordinates.pcbholder.deep ) 
+            );
+            var pcbholder = new THREE.Mesh( geometry, material );
+            pcbholder.position.set(
+                this.holderCoordinates.pcbholder.dx/2,
+                this.holderCoordinates.pcbholder.dy/2,
+                this.holderCoordinates.pcbholder.deep);
+            return pcbholder;
+        },
+        drawTrays: function(){
+            var trays = [];
 
             for (var trayname in this.holderCoordinates.trays) {
-                var geometry = new THREE.BoxGeometry( this.holderCoordinates.trays[trayname].width  , this.holderCoordinates.size.dy, Math.abs( this.holderCoordinates.structure.tapeThick ) );
+                var material = new THREE.MeshPhongMaterial( {
+                    color: 0xaaaaaa, 
+                    shading: THREE.FlatShading,
+                    polygonOffset: true,
+                    polygonOffsetFactor: 1, // positive value pushes polygon further away
+                    polygonOffsetUnits: 1
+                } );
+                var geometry = new THREE.BoxGeometry( 
+                    this.holderCoordinates.trays[trayname].width, 
+                    this.holderCoordinates.size.dy,
+                    Math.abs( this.holderCoordinates.structure.tapeThick ) 
+                );
                 var tape = new THREE.Mesh( geometry, material );
                 tape.position.set( 
                     this.holderCoordinates.trays[trayname].x,
                     this.holderCoordinates.zero.y,
-                    (this.holderCoordinates.structure.tapeThick/2)
+                    1
                 );
+                
+                // check if this tray set
+                if( this.searchObj(this.components.forTrays, 'TRAY', trayname) != null ){
+                        tape.material.color.setHex( 0xeeffee );
+                }                
+                
+                // Display tray txt
+                var tapeTxt = this.obj3dmeta.widget.makeText({
+                    x: 1,
+                    y: 0-(this.holderCoordinates.size.dy/2)+10,
+                    z: 1,
+                    text: this.holderCoordinates.trays[trayname].name,
+                    color: '#000000',
+                    opacity: 0.6,
+                    size: 2
+                });
+                this.rotateObject(tapeTxt, 90);
+                tape.add(tapeTxt);
                 trays.push(tape);
+            }
+
+            for (var pocketname in this.holderCoordinates.pockets) {
+                var material = new THREE.MeshPhongMaterial( {
+                    color: 0xaaaaff, 
+                    shading: THREE.FlatShading,
+                    polygonOffset: true,
+                    polygonOffsetFactor: 1, // positive value pushes polygon further away
+                    polygonOffsetUnits: 1
+                } );
+                var geometry = new THREE.BoxGeometry( 
+                    this.holderCoordinates.pockets[pocketname].width, 
+                    this.holderCoordinates.pockets[pocketname].width, 
+                    Math.abs( this.holderCoordinates.structure.tapeThick ) 
+                );
+                var pocket = new THREE.Mesh( geometry, material );
+                pocket.position.set( 
+                    this.holderCoordinates.pockets[pocketname].x + this.holderCoordinates.zero.x,
+                    this.holderCoordinates.pockets[pocketname].y,
+                    1
+                );
+                // check if this tray set
+                if( this.searchObj(this.components.forPockets, 'POCKET', pocketname) != null ){
+                        pocket.material.color.setHex( 0xaaffaa );
+                }                
+
+                // Display pocket txt
+                var pocketTxt = this.obj3dmeta.widget.makeText({
+                    x: 0-(this.holderCoordinates.pockets[pocketname].width/2)+2,
+                    y: 1,
+                    z: 1,
+                    text: this.holderCoordinates.pockets[pocketname].name,
+                    color: '#000000',
+                    opacity: 0.6,
+                    size: 2
+                });
+                pocket.add(pocketTxt);
+                trays.push(pocket);
             }
 
             return trays;
         },
         drawPlatform: function(){
             // Build box as platform
-            var geometry = new THREE.BoxGeometry( this.holderCoordinates.size.dx , this.holderCoordinates.size.dy, this.holderCoordinates.size.dz );
-            var material = new THREE.MeshBasicMaterial( {
-                color: 0xaaaaaa, 
-                wireframe: true
+            var geometry = new THREE.BoxGeometry( 
+                this.holderCoordinates.size.dx, 
+                this.holderCoordinates.size.dy, 
+                this.holderCoordinates.size.dz 
+            );
+            var material = new THREE.MeshBasicMaterial( { 
+                     color: '#666666',
+                     wireframe : true,
+                     transparent: true,
+                     opacity: 0.1
             } );
             var platform = new THREE.Mesh( geometry, material );
             platform.position.set( 
                 this.holderCoordinates.zero.x, 
                 this.holderCoordinates.zero.y, 
-                (0 - (this.holderCoordinates.size.dz/2))-1
+                (0 - (this.holderCoordinates.size.dz/2))-1.5
             );
+
             return platform;
         },
         /**
@@ -678,6 +776,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
                   // get cmp from tray
                   g += this.tapeStrategy( evalue[cmpName], evalue['TRAY'] );
+                  g += this.rotateStrategy( evalue[cmpName] );
                   g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
                   g += this.putStrategy( evalue[cmpName] );
                }
@@ -689,8 +788,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                   if($.type(evalue[cmpName]) != 'object')
                      continue; // ignore tray entrys
 
-                  // get cmp from tray
-                  g += this.pocketStrategy( evalue[cmpName], evalue['POCKET'] );
+                  g += this.rotateStrategy( evalue[cmpName] );
                   g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
                   g += this.putStrategy( evalue[cmpName] );
                }
@@ -700,14 +798,26 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             return g;
         },
+        rotateStrategy: function(cmp){
+            var g = '';
+            // get cmp from tray
+            var rotate = cmp.rot;
+            rotate = parseInt(rotate.replace(/\D+/ig, ''));
+            if(rotate)
+                rotate = rotate / 10;
+            console.log('PNP rotate', rotate);
+            // we choose a stepper with 200 steps for 360°
+            // $103=55.55 ... rotate for 90° = 0.9, rotate for 180° = 1.8
+            g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + rotate + ")\n";
+            return g;
+        },
+        
         /**
          * Strategy in gcode to put a cmp to pcb.
          */
         putStrategy: function(cmp){
            var g = "";
            g += "(---- put " + cmp.name + " to pcb" + " ----- )\n";
-
-           // TODO: add rotate gcode for second controller
 
            g += "G0 Z" + this.holderCoordinates.pcbThick +  "\n"; // move down to pcb surface
            g += "(chilipeppr_pause vacuum false)\n"; // vacuum off
@@ -811,11 +921,20 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             this.obj3dmeta.widget.wakeAnimate();
         },
         sceneRemove: function (obj) {
-            if (this.mySceneGroup != null)
+            console.log('PNP mySceneGroup', this.mySceneGroup);
+            //if (this.mySceneGroup != null)
                 this.mySceneGroup.remove(obj);
             this.obj3dmeta.widget.wakeAnimate();
         },
-        
+        rotateObject: function(object, degrees){
+            var r = (Math.PI / 180) * degrees;
+            var axis = new THREE.Vector3(0, 0, 1);
+            var rotObjectMatrix = new THREE.Matrix4();
+            rotObjectMatrix.makeRotationAxis(axis.normalize(), r);
+            object.matrix.multiply(rotObjectMatrix);
+            object.rotation.setFromRotationMatrix(object.matrix);
+            return object;
+        },
         /**
          * User options are available in this property for reference by your
          * methods. If any change is made on these options, please call
@@ -864,6 +983,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             // register input field 'safetyHeight' to change and options
             that.reginput('safetyHeight', that.holderCoordinates.safetyHeight);
+            that.reginput('rotateAxis', that.rotateAxis);
+            that.reginput('nozzleDiameter', that.nozzleDiameter);
             
             that.reginput();
         },
@@ -967,26 +1088,39 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         </div>
 
         <div class="form-group">
+            Rotation axis
+            <div class="input-group">
+                <input id="rotateAxis" class="form-control" type="string" placeholder="" value="Y" />
+            </div>
+            <p class="descriptive-text">The axis for rotate smd cmp on the second controller</p>
+
+            Nozzle outsidediameter
+            <div class="input-group">
+                <input id="nozzleDiameter" class="form-control" type="number" placeholder="" value="1" />
+                <div class="input-group-addon">mm</div>
+            </div>
+            <p class="descriptive-text">The mostly smallest outsidediameter of nozzle</p>
+
             Safety height
             <div class="input-group">
                 <input id="safetyHeight" class="form-control" type="number" placeholder="" value="5" />
                 <div class="input-group-addon">mm</div>
             </div>
             <p class="descriptive-text">Measure the highest point (Screwheads o.a.) and add one mm to the safety height.</p>
+
+            PNP Holder
+            <div class="input-group">
+               <select id="pnpholders" class="form-control pnpholders"></select>
+            </div>
+            <p class="descriptive-text">Model of the Pick and Place Holder.</p>
+
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
+            </label>
+            </div>
         </div>
 
-        <div class="input-group">
-           <select id="pnpholders" class="form-control pnpholders"></select>
-        </div>
-        <p class="descriptive-text">
-            Model of the Pick and place Holder.
-        </p>
-
-        <div class="checkbox">
-        <label>
-            <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
-        </label>
-        </div>
 
       </div> 
 

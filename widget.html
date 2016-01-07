@@ -12,7 +12,6 @@
     <!-- Customized version of require.js for ChiliPeppr. Please see require.js docs for how
     ChiliPeppr's dependency system works as it's based on require.js. -->
     <script type='text/javascript' src="//i2dcui.appspot.com/js/require.js"></script>
-    <script type='text/javascript' src="http://learningthreejs.com/data/constructive-solid-geometry-with-csg-js/vendor/csg.js"></script>
 
     <!-- widget.css DON'T REMOVE -->
     <style type='text/css'>
@@ -42,26 +41,39 @@
         </div>
 
         <div class="form-group">
+            Rotation axis
+            <div class="input-group">
+                <input id="rotateAxis" class="form-control" type="string" placeholder="" value="Y" />
+            </div>
+            <p class="descriptive-text">The axis for rotate smd cmp on the second controller</p>
+
+            Nozzle outsidediameter
+            <div class="input-group">
+                <input id="nozzleDiameter" class="form-control" type="number" placeholder="" value="1" />
+                <div class="input-group-addon">mm</div>
+            </div>
+            <p class="descriptive-text">The mostly smallest outsidediameter of nozzle</p>
+
             Safety height
             <div class="input-group">
                 <input id="safetyHeight" class="form-control" type="number" placeholder="" value="5" />
                 <div class="input-group-addon">mm</div>
             </div>
             <p class="descriptive-text">Measure the highest point (Screwheads o.a.) and add one mm to the safety height.</p>
+
+            PNP Holder
+            <div class="input-group">
+               <select id="pnpholders" class="form-control pnpholders"></select>
+            </div>
+            <p class="descriptive-text">Model of the Pick and Place Holder.</p>
+
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
+            </label>
+            </div>
         </div>
 
-        <div class="input-group">
-           <select id="pnpholders" class="form-control pnpholders"></select>
-        </div>
-        <p class="descriptive-text">
-            Model of the Pick and place Holder.
-        </p>
-
-        <div class="checkbox">
-        <label>
-            <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
-        </label>
-        </div>
 
       </div> 
 
