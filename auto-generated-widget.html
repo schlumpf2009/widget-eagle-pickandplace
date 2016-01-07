@@ -527,16 +527,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             var buildRow = function(elemValue){
                var data = that.components.forTrays[ elemValue ] 
                             || that.components.forPockets[ elemValue ];
-               var names = [];
+               var names = [], 
+                   packages = '';
                for(var value in data){
                   names.push(data[value].name);
+                  if($.type(data[value]) == 'object')
+                    packages = data[value].pkg;
                }
                // collect data and display in a table row
                if($.type(data) == 'object')
                    tableRows.push([
                       (Object.keys(data).length -1),
                       elemValue,
-                      Object.keys(data).slice(0,-1).join(', '),
+                      packages,
                       names.join(', '),
                       '<select id="trays_' + elemValue.replace(/\./ig, '_') + '" class="pnp-select" />'
                    ]);  
