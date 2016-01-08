@@ -115,6 +115,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         rotateAxis: 'Y',      // Rotation axis on the second controller
         nozzleDiameter: 1,    // noozle diameter in mm
+        safetyHeight: 5,        // safety height for rapid moves
         // this define the trays, this will later load via ajax 
         // for every tray holder but for the first time we define here the structure
         holderCoordinates: {
@@ -122,7 +123,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             zero: {x: 6, y: 55},   // calculated from center of platform
             pcbThick: 0.6,          // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
             sortAxis: 'x',          // Axis for calculate ways
-            safetyHeight: 5,        // safety height for rapid moves
             pcbholder: {dx: 120, dy: 80, deep: -1}, // dimensions of pcb holder
             structure: {            // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
                feedrate: 100,                               // slow feedrate in mm/min
@@ -826,7 +826,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
            g += "G0 Z" + this.holderCoordinates.pcbThick +  "\n"; // move down to pcb surface
            g += "(chilipeppr_pause vacuum false)\n"; // vacuum off
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z" + this.safetyHeight + "\n";
            
            return g;
         },
@@ -853,15 +853,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            var pocket = this.holderCoordinates.pockets[ pocketname ];
            var size = this.size(cmp);
 
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z" + this.safetyHeight + "\n";
            g += "G0 X" + pocket.x + "Y" + pocket.y + "\n";         // now we moved to zero pint of tray
 
            g += "G91" + "\n";                                  // set to relative coordination system
-           g += "G0 X"+ (size.dx/2).toFixed(4) + " Y" + (size.dy/2).toFixed(4) + " Z-" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 X"+ (size.dx/2).toFixed(4) + " Y" + (size.dy/2).toFixed(4) + " Z-" + this.safetyHeight + "\n";
            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
 
            g += "G90" + "\n";                                  // set to relative coordination system
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z" + this.safetyHeight + "\n";
            
            return g;
         },
@@ -878,21 +878,21 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            var dia = this.nozzleDiameter;
            var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
            
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z" + this.safetyHeight + "\n";
            g += "G0 X" + tray.x + "Y" + tray.y + "\n";         // now we moved to zero pint of tray
 
            g += "G91" + "\n";                                  // set to relative coordination system
            g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
-           g += "G0 Z-" + this.holderCoordinates.safetyHeight  + "\n";      // go down to zero  z-axis
+           g += "G0 Z-" + this.safetyHeight  + "\n";      // go down to zero  z-axis
            g += "G1 F" + structure.feedrate + "Z" + (structure.tapeThick/2)  + "\n";      // go into the hole
            g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff +" )\n";
            g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff)  + "\n"; // go up in Y Axis to get next component
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
-           g += "G0 Z-" + this.holderCoordinates.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
+           g += "G0 Z" + this.safetyHeight + "\n";
+           g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
 
            g += "G90" + "\n";                                  // set to relative coordination system
-           g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
+           g += "G0 Z" + this.safetyHeight + "\n";
            
            return g;
         },
@@ -1002,10 +1002,10 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             });
 
             // register input field 'safetyHeight' to change and options
-            that.reginput('safetyHeight', that.holderCoordinates.safetyHeight);
-            that.reginput('rotateAxis', that.rotateAxis);
-            that.reginput('nozzleDiameter', that.nozzleDiameter);
-            that.reginput('packagesTrays', that.packagesTrays);
+            that.reginput('safetyHeight');
+            that.reginput('rotateAxis');
+            that.reginput('nozzleDiameter');
+            that.reginput('packagesTrays');
             
             that.reginput();
         },
@@ -1013,32 +1013,29 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * Register input field as change event and as entry in this.options.
          * also recognize loaded data from localspace (options)
          */
-        reginput: function(field, entry){
-            var that = this;
-            var el = $('#' + that.id);
+        reginput: function(field){
+            var el = $('#' + this.id);
 
             if(field !== undefined){
                 // get field input from user and register a changed event
+                var that = this;
                 el.find('.' + field).change(function(evt) {
                     console.log("evt:", evt);
                     var value = evt.currentTarget.value;
-
-                    entry = that.getValue(value, entry);
-
-                    that.options[field] = entry;
+                    that.options[field] = that.getValue(value, that.options[field]);
+                    console.log(that.options);
                     that.saveOptionsLocalStorage();
                 });
             }
             else {
-                if(that.options['packagesTrays'] === undefined){
-                    that.options.packagesTrays   = that.packagesTrays;
-                    that.options.packagesPockets = that.packagesPockets;
+                if(this.options['packagesTrays'] === undefined){
+                    this.options.packagesTrays   = this.packagesTrays;
+                    this.options.packagesPockets = this.packagesPockets;
                 }
-                console.log('Options', that.options );
-                for(var key in that.options){
+                console.log('Options', this.options );
+                for(var key in this.options){
                     // read from options, set and trigger change
-                    var value = that.setValue(that.options[key], key);
-                    el.find('.' + key).val(value).trigger('change');
+                    el.find('.' + key).val(this.setValue(this.options[key], key));
                 }
             }
         },
