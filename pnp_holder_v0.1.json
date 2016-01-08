@@ -1,0 +1,42 @@
+{
+    size: {dx: 260, dy:130, dz: 10},
+    zero: {x: 6, y: 55},   // calculated from center of platform
+    pcbThick: 0.6,          // pcb thick minus deep of pcb pocket in mm i.e. (1.6mm - 1mm)
+    sortAxis: 'x',          // Axis for calculate ways
+    safetyHeight: 5,        // safety height for rapid moves
+    pcbholder: {dx: 120, dy: 80, deep: -1}, // dimensions of pcb holder
+    structure: {            // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
+       feedrate: 100,                               // slow feedrate in mm/min
+       tapeThick: -1,                               // how thick are the tape
+       holeDiameter: 1.5,                           // check parameter "D" in website
+       holeBorderDistance: 1.75,                    // check parameter "E" in website
+       holeDistance: 4.00,                          // check parameter "Po" in website
+       holeComponentDistance:  {x: 3.50, y:2.00 },  // check parameter "F and P2" in website
+    },
+    trays: {
+        // Trays are numbered and pockets has letters
+        // x and y coordinates are realtive to zero point of PNP Holder
+        tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 90 },
+        tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 90 },
+        tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 90 },
+        tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 90 },
+        tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 90 },
+        tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 90 },
+        tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 90 },
+        tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 90 },
+    },
+    pockets: {
+        Pocket_A: { name: 'Pocket A',   width: 15, x: -23, y: 21 },
+        Pocket_B: { name: 'Pocket B',   width: 15, x: -23, y: 52 },
+        Pocket_C: { name: 'Pocket C',   width: 15, x: -23, y: 71 },
+        Pocket_D: { name: 'Pocket D',   width: 15, x: -23, y: 110 },
+        Pocket_E: { name: 'Pocket E',   width: 15, x: -4,  y: 110 },
+        Pocket_F: { name: 'Pocket F',   width: 15, x: -4,  y: 89 },
+        Pocket_G: { name: 'Pocket G',   width: 15, x: 15,  y: 89 },
+        Pocket_H: { name: 'Pocket G',   width: 15, x: 34,  y: 89 },
+        Pocket_I: { name: 'Pocket H',   width: 15, x: 53,  y: 89 },
+        Pocket_K: { name: 'Pocket I',   width: 15, x: 72,  y: 89 },
+        Pocket_L: { name: 'Pocket K',   width: 15, x: 91,  y: 89 },
+        Pocket_M: { name: 'Pocket L',   width: 15, x: 110, y: 89 },
+    },
+}

@@ -114,7 +114,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             'PNP Holder V0.1': 'pnp_holder_v0.1'
         },
         rotateAxis: 'Y',      // Rotation axis on the second controller
-        nozzleDiameter: 3,    // noozle diameter in mm
+        nozzleDiameter: 1,    // noozle diameter in mm
         // this define the trays, this will later load via ajax 
         // for every tray holder but for the first time we define here the structure
         holderCoordinates: {
@@ -130,7 +130,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                holeDiameter: 1.5,                           // check parameter "D" in website
                holeBorderDistance: 1.75,                    // check parameter "E" in website
                holeDistance: 4.00,                          // check parameter "Po" in website
-               holeComponentDistance:  {y: 3.50, x:2.00 },  // check parameter "F and P2" in website
+               holeComponentDistance:  {x: 3.50, y:2.00 },  // check parameter "F and P2" in website
             },
             trays: {
                 // Trays are numbered and pockets has letters
@@ -588,7 +588,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 key = key.replace(/\./ig, '-');
 
                 // try to find in packagesTray
-                this.packagesTrays.forEach(function(type){
+                var packagesTrays = this.options.packagesTrays || this.packagesTrays;
+                packagesTrays.forEach(function(type){
                     var re = new RegExp(type, 'gi');
                     if(pkg.name.match(re)){
                         found++
@@ -599,8 +600,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 });
 
                 // try to find in packagesPockets
+                var packagesPockets = this.options.packagesPockets || this.packagesPockets;
                 if(found == 0)
-                    this.packagesPockets.forEach(function(type){
+                    packagesPockets.forEach(function(type){
                         var re = new RegExp(type, 'gi');
                         if(pkg.name.match(re)){
                             found++
@@ -858,6 +860,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            var tray = this.holderCoordinates.trays[ trayname ];
            var structure = this.holderCoordinates.structure;
            var dia = this.nozzleDiameter;
+           var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
            
            g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
            g += "G0 X" + tray.x + "Y" + tray.y + "\n";         // now we moved to zero pint of tray
@@ -866,9 +869,10 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
            g += "G0 Z-" + this.holderCoordinates.safetyHeight  + "\n";      // go down to zero  z-axis
            g += "G1 F" + structure.feedrate + "Z" + (structure.tapeThick/2)  + "\n";      // go into the hole
-           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + (dia/2))  + "\n"; // go up in Y Axis to get next component
+           g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff +" )\n";
+           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff)  + "\n"; // go up in Y Axis to get next component
            g += "G0 Z" + this.holderCoordinates.safetyHeight + "\n";
-           g += "G0 Z-" + this.holderCoordinates.safetyHeight + " Y-" + structure.holeComponentDistance.y + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
+           g += "G0 Z-" + this.holderCoordinates.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
 
            g += "G90" + "\n";                                  // set to relative coordination system
@@ -948,7 +952,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // object for your own items
 
             var options = localStorage.getItem(this.id + '-options');
-
+            
+            
             if (options) {
                 options = $.parseJSON(options);
                 console.log("just evaled options: ", options);
@@ -957,8 +962,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 options = {
                     //showBody: true,
                     tabShowing: 1,
-                    customParam1: null,
-                    customParam2: 1.0
                 };
             }
 
@@ -967,7 +970,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             // init ui 
             var that = this;            
-            this.selectbox('#pnpholders', this.pnpholders);
+            this.selectbox('.pnpholders', this.pnpholders);
+
+            // load json definition for holder
+            /*
+            var el = $('#' + that.id);
+            $.getJSON( this.pnpholders[ el.find('.pnpholders').val() ] + ".json?callback=?", function( data ) {
+                console.log('pnp load holderCoordinates', data);
+                that.holderCoordinates = data;                
+            });
+            */
+
             $('#pnp-refresh').click(function(evt){
                that.setupComponentsTable();
             });
@@ -976,6 +989,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             that.reginput('safetyHeight', that.holderCoordinates.safetyHeight);
             that.reginput('rotateAxis', that.rotateAxis);
             that.reginput('nozzleDiameter', that.nozzleDiameter);
+            that.reginput('packagesTrays', that.packagesTrays);
             
             that.reginput();
         },
@@ -991,17 +1005,48 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 // get field input from user and register a changed event
                 el.find('.' + field).change(function(evt) {
                     console.log("evt:", evt);
-                    entry = evt.currentTarget.valueAsNumber;
+                    var value = evt.currentTarget.value;
+
+                    entry = that.getValue(value, entry);
+
                     that.options[field] = entry;
                     that.saveOptionsLocalStorage();
                 });
             }
             else {
+                if(that.options['packagesTrays'] === undefined){
+                    that.options.packagesTrays   = that.packagesTrays;
+                    that.options.packagesPockets = that.packagesPockets;
+                }
+                console.log('Options', that.options );
                 for(var key in that.options){
                     // read from options, set and trigger change
-                    el.find('.' + key).val(that.options[key]).trigger('change');
+                    var value = that.setValue(that.options[key], key);
+                    el.find('.' + key).val(value).trigger('change');
                 }
             }
+        },
+        setValue: function(value){
+            if( $.type(value) == 'array' )
+                return value.join(',');
+
+            if( $.type(value) == 'boolean' )
+                return (value ? true : false);
+            
+            return value;
+        },
+        getValue: function(value, entry){
+            if( $.type(entry) == 'array' )
+                return value.split(',');
+
+            if( $.type(entry) == 'number' )
+                return parseFloat(value);
+
+            if( $.type(entry) == 'string' )
+                return value;
+
+            if( $.type(entry) == 'boolean' )
+                return (value ? true : false);
         },
         /**
          * When a user changes a value that is stored as an option setting, you

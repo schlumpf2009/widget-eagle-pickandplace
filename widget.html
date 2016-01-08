@@ -41,6 +41,8 @@
         </div>
 
         <div class="form-group">
+            <input type="checkbox" class="form-control onlypnpgcode" xchecked /> Only PNP Gcode
+
             Rotation axis
             <div class="input-group">
                 <input class="form-control rotateAxis" type="string" placeholder="" value="Y" />
@@ -67,11 +69,19 @@
             </div>
             <p class="descriptive-text">Model of the Pick and Place Holder.</p>
 
-            <div class="checkbox">
-            <label>
-                <input type="checkbox" class="form-control onlypnpgcode" xchecked /> Only PNP Gcode
-            </label>
+            Packages for Trays
+            <div class="input-group">
+                <input class="form-control packagesTrays" type="string" placeholder="" value="" />
             </div>
+            <p class="descriptive-text">Comma separated list for possible package names for tray's.</p>
+
+            Packages for Pockets
+            <div class="input-group">
+                <input class="form-control packagesPockets" type="string" placeholder="" value="" />
+            </div>
+            <p class="descriptive-text">Comma separated list for possible package names for pocket's.</p>
+
+
         </div>
 
 
