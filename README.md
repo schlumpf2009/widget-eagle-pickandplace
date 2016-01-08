@@ -28,17 +28,21 @@ Javascript. Then you use cprequire() to find your widget's Javascript and get
 back the instance of it.
 
 ```javascript
+// Inject new div to contain widget or use an existing div with an ID
+$("body").append('<' + 'div id="myDivWidgetEaglePickandplace"><' + '/div>');
+
 chilipeppr.load(
-  "#myDivWidgetInsertedInto",
+  "#myDivWidgetEaglePickandplace",
   "http://raw.githubusercontent.com/xpix/widget-eagle-pickandplace/master/auto-generated-widget.html",
   function() {
-    // Callback after widget loaded into #myDivWidgetInsertedInto
+    // Callback after widget loaded into #myDivWidgetEaglePickandplace
+    // Now use require.js to get reference to instantiated widget
     cprequire(
       ["inline:com-chilipeppr-widget-eagle-pickandplace"], // the id you gave your widget
-      function(mywidget) {
-        // Callback that is passed reference to your newly loaded widget
-        console.log("My widget just got loaded.", mywidget);
-        mywidget.init();
+      function(myObjWidgetEaglePickandplace) {
+        // Callback that is passed reference to the newly loaded widget
+        console.log("Widget Add-On / Pick and Place just got loaded.", myObjWidgetEaglePickandplace);
+        myObjWidgetEaglePickandplace.init();
       }
     );
   }
