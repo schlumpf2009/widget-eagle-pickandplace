@@ -475,7 +475,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
 
-            if( $('#onlypnpgcode').is(':checked') ){
+            if( $('#' + this.id).find('.onlypnpgcode').is(':checked') ){
                 // remove all milling code for testing or to choose only pnp
                 gcodeParts[200] = undefined;
                 gcodeParts[300] = undefined;
