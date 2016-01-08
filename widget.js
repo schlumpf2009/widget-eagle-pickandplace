@@ -368,7 +368,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 var t = this.searchObj(this.components.forTrays, 'TRAY', trayname);
                 if( t != null ){
                     tape.material.color.setHex( 0xeeffee );
-                    var wert;
                     text += ' [ ' + t[0] + ' ]';
                 }
                 
@@ -407,16 +406,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     1
                 );
                 // check if this tray set
-                if( this.searchObj(this.components.forPockets, 'POCKET', pocketname) != null ){
-                        pocket.material.color.setHex( 0xaaffaa );
-                }                
+                var text = this.holderCoordinates.pockets[pocketname].name;
+                var t = this.searchObj(this.components.forPockets, 'POCKET', pocketname);
+                if( t != null ){
+                    pocket.material.color.setHex( 0xaaffaa );
+                    text += ' [' + t[0] + ']';
+                }
 
                 // Display pocket txt
                 var pocketTxt = this.obj3dmeta.widget.makeText({
                     x: 0-(this.holderCoordinates.pockets[pocketname].width/2)+2,
                     y: 1,
                     z: 1,
-                    text: this.holderCoordinates.pockets[pocketname].name,
+                    text: text,
                     color: '#000000',
                     opacity: 0.6,
                     size: 2
