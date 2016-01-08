@@ -147,7 +147,7 @@ methods. If any change is made on these options, please call
 saveOptionsLocalStorage()</td></tr><tr valign="top"><td>setupUiFromLocalStorage</td><td>function</td><td>function () <br><br>Call this method on init to setup the UI by reading the user's
 stored settings from localStorage and then adjust the UI to reflect
 what the user wants.</td></tr><tr valign="top"><td>reginput</td><td>function</td><td>function (field, entry)<br><br>Register input field as change event and as entry in this.options.
-also recognize loaded data from localspace (options)</td></tr><tr valign="top"><td>saveOptionsLocalStorage</td><td>function</td><td>function () <br><br>When a user changes a value that is stored as an option setting, you
+also recognize loaded data from localspace (options)</td></tr><tr valign="top"><td>setValue</td><td>function</td><td>function (value)</td></tr><tr valign="top"><td>getValue</td><td>function</td><td>function (value, entry)</td></tr><tr valign="top"><td>saveOptionsLocalStorage</td><td>function</td><td>function () <br><br>When a user changes a value that is stored as an option setting, you
 should call this method immediately so that on next load the value
 is correctly set.</td></tr><tr valign="top"><td>forkSetup</td><td>function</td><td>function () <br><br>This method loads the pubsubviewer widget which attaches to our 
 upper right corner triangle menu and generates 3 menu items like

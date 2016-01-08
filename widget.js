@@ -508,15 +508,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             var tableRows = [], 
                 that = this;
 
-            var buildRow = function(elemValue){
+            var buildRow = function(elemValue, ignored){
                var data = that.components.forTrays[ elemValue ] 
-                            || that.components.forPockets[ elemValue ];
+                            || that.components.forPockets[ elemValue ]
+                            || that.components.ignored[ elemValue ];
                var names = [], 
-                   packages = '';
+                   packages = '',
+                   rotation = [];
                for(var value in data){
                   names.push(data[value].name);
-                  if($.type(data[value]) == 'object')
+                  if($.type(data[value]) == 'object'){
                     packages = data[value].pkg;
+                    rotation.push(data[value].rot);
+                  }
                }
                // collect data and display in a table row
                if($.type(data) == 'object')
@@ -524,8 +528,11 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                       (Object.keys(data).length -1),
                       elemValue,
                       packages,
+                      rotation.join(', '),
                       names.join(', '),
-                      '<select id="trays_' + elemValue.replace(/\./ig, '_') + '" class="pnp-select" />'
+                      (ignored 
+                        ? '<b>Ignored</b>' 
+                        : '<select id="trays_' + elemValue.replace(/\./ig, '_') + '" class="pnp-select" />')
                    ]);  
             }
 
@@ -535,6 +542,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             }
             for (var elemValue in this.components.forPockets ) {
                 buildRow(elemValue);
+            }
+            for (var elemValue in this.components.ignored ) {
+                buildRow(elemValue, 'ignored');
             }
             this.table('#pnp-component-list', tableRows);
 
