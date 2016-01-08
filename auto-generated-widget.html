@@ -1053,7 +1053,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 el.find('.' + field).change(function(evt) {
                     console.log("evt:", evt);
                     var value = evt.currentTarget.value;
-                    that.options[field] = that.getValue(value, that.options[field]);
+                    that.options[field] = that.getValue(value, that[field]);
                     console.log(that.options);
                     that.saveOptionsLocalStorage();
                 });
@@ -1091,6 +1091,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             if( $.type(entry) == 'boolean' )
                 return (value ? true : false);
+            
+            return value;
         },
         /**
          * When a user changes a value that is stored as an option setting, you
@@ -1101,7 +1103,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // You can add your own values to this.options to store them
             // along with some of the normal stuff like showBody
             var options = this.options;
-
+            for(var key in options){
+                this[key] = options[key];
+            }
             var optionsStr = JSON.stringify(options);
             console.log("saving options:", options, "json.stringify:", optionsStr);
             // store settings to localStorage
