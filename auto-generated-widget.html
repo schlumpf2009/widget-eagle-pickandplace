@@ -308,6 +308,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         pnp3d: null,
         /**
+         * widget to know if startet or not.
+         */
+        started: function(){
+            return (this.mySceneGroup == null ? false: true);
+        },
+        /**
          * When the user clicks to activate our tab, this event is called.
          */
         onTabShown: function() {
@@ -505,6 +511,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
+
+            if(! this.started())
+                return;
 
             if( $('#' + this.id).find('.onlypnpgcode').is(':checked') ){
                 // remove all milling code for testing or to choose only pnp
@@ -1103,6 +1112,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // You can add your own values to this.options to store them
             // along with some of the normal stuff like showBody
             var options = this.options;
+
+            // save all changed data to root object
             for(var key in options){
                 this[key] = options[key];
             }
