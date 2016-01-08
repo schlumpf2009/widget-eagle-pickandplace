@@ -281,7 +281,13 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         onTabShown: function() {
             this.isTabShowing = true;
-            this.drawpickandplace();
+            if (this.mySceneGroup != null){
+                this.mySceneGroup.children.forEach(function(child){
+                    child.visible = true; 
+                });
+            } else {
+                this.drawpickandplace();
+            }
         },
         /**
          * When the user clicks a different tab and this one gets hidden.
@@ -478,12 +484,21 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         /**
          * After Render Register all components and sort to the trays and pockets
          */
-        onBeforeRender : function(that){
-            console.log("Get onBeforeRender:", that);
-            this.registerEagleComponents(that);
+        onBeforeRender : function(self){
+            console.log("Get onBeforeRender:", self);
+            this.registerEagleComponents(self);
             this.sortTrayComponents();
             this.sortPocketComponents();
             this.setupComponentsTable();
+
+            if( this.isTabShowing ){
+                var that = this;
+                console.log("Tab are showing, regenerate pnp holder", this.isTabShowing);
+                setTimeout(function(){
+                    that.mySceneGroup = null;
+                    that.onTabShown();
+                }, 2000);
+            }
         },
         /**
          * Display table with all components sortet to the trays and pockets.
@@ -894,8 +909,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         sceneRemove: function (obj) {
             console.log('PNP mySceneGroup', this.mySceneGroup);
-            //if (this.mySceneGroup != null)
-                this.mySceneGroup.remove(obj);
+            if (this.mySceneGroup != null){
+                this.mySceneGroup.children.forEach(function(child){
+                    child.visible = false; 
+                });
+            }
+            //this.mySceneGroup.remove(obj);
             this.obj3dmeta.widget.wakeAnimate();
         },
         rotateObject: function(object, degrees){
@@ -966,9 +985,11 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         reginput: function(field, entry){
             var that = this;
+            var el = $('#' + that.id);
+
             if(field !== undefined){
                 // get field input from user and register a changed event
-                $('#' + field).change(function(evt) {
+                el.find('.' + field).change(function(evt) {
                     console.log("evt:", evt);
                     entry = evt.currentTarget.valueAsNumber;
                     that.options[field] = entry;
@@ -978,7 +999,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             else {
                 for(var key in that.options){
                     // read from options, set and trigger change
-                    $('#' + key).val(that.options[key]).trigger('change');
+                    el.find('.' + key).val(that.options[key]).trigger('change');
                 }
             }
         },

@@ -37,39 +37,39 @@
       <div class="panel eagle-advanced" style="margin-bottom:10px;">
       <!-- PNP Setting -->
         <div class="btn-group">
-           <button type="button" data-toggle="modal" data-target="#com-chilipeppr-widget-pickandplace-window" id="btn-pnp-trays" class="btn btn-xs btn-default" style="margin: 4px 0;">Configure trays</button> 
+           <button type="button" data-toggle="modal" data-target="#com-chilipeppr-widget-pickandplace-window" class="btn btn-xs btn-default btn-pnp-trays" style="margin: 4px 0;">Configure trays</button> 
         </div>
 
         <div class="form-group">
             Rotation axis
             <div class="input-group">
-                <input id="rotateAxis" class="form-control" type="string" placeholder="" value="Y" />
+                <input class="form-control rotateAxis" type="string" placeholder="" value="Y" />
             </div>
             <p class="descriptive-text">The axis for rotate smd cmp on the second controller</p>
 
             Nozzle outsidediameter
             <div class="input-group">
-                <input id="nozzleDiameter" class="form-control" type="number" placeholder="" value="1" />
+                <input class="form-control nozzleDiameter" type="number" placeholder="" value="1" />
                 <div class="input-group-addon">mm</div>
             </div>
             <p class="descriptive-text">The mostly smallest outsidediameter of nozzle</p>
 
             Safety height
             <div class="input-group">
-                <input id="safetyHeight" class="form-control" type="number" placeholder="" value="5" />
+                <input class="form-control safetyHeight" type="number" placeholder="" value="5" />
                 <div class="input-group-addon">mm</div>
             </div>
             <p class="descriptive-text">Measure the highest point (Screwheads o.a.) and add one mm to the safety height.</p>
 
             PNP Holder
             <div class="input-group">
-               <select id="pnpholders" class="form-control pnpholders"></select>
+               <select class="form-control pnpholders"></select>
             </div>
             <p class="descriptive-text">Model of the Pick and Place Holder.</p>
 
             <div class="checkbox">
             <label>
-                <input type="checkbox" id="onlypnpgcode" xchecked /> Only PNP Gcode
+                <input type="checkbox" class="form-control onlypnpgcode" xchecked /> Only PNP Gcode
             </label>
             </div>
         </div>
