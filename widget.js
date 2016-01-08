@@ -364,16 +364,20 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 );
                 
                 // check if this tray set
-                if( this.searchObj(this.components.forTrays, 'TRAY', trayname) != null ){
-                        tape.material.color.setHex( 0xeeffee );
-                }                
+                var text = this.holderCoordinates.trays[trayname].name;
+                var t = this.searchObj(this.components.forTrays, 'TRAY', trayname);
+                if( t != null ){
+                    tape.material.color.setHex( 0xeeffee );
+                    var wert;
+                    text += ' [ ' + t[0] + ' ]';
+                }
                 
                 // Display tray txt
                 var tapeTxt = this.obj3dmeta.widget.makeText({
                     x: 1,
                     y: 0-(this.holderCoordinates.size.dy/2)+10,
                     z: 1,
-                    text: this.holderCoordinates.trays[trayname].name,
+                    text: text,
                     color: '#000000',
                     opacity: 0.6,
                     size: 2
