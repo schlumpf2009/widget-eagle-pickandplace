@@ -475,7 +475,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             );
             var material = new THREE.MeshBasicMaterial( { 
                      color: '#666666',
-                     wireframe : true,
+                     wireframe : false,
                      transparent: true,
                      opacity: 0.1
             } );
@@ -924,7 +924,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            g += "G91" + "\n";                                  // set to relative coordination system
            g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
            g += "G0 Z-" + this.safetyHeight  + "\n";      // go down to zero  z-axis
-           g += "G1 F" + structure.feedrate + "Z" + (structure.tapeThick/2)  + "\n";      // go into the hole
+           g += "G1 F" + structure.feedrate + "Z" + structure.tapeThick  + "\n";      // go into the hole
            g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff +" )\n";
            g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff)  + "\n"; // go up in Y Axis to get next component
            g += "G0 Z" + this.safetyHeight + "\n";
