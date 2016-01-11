@@ -388,11 +388,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     polygonOffsetFactor: 1, // positive value pushes polygon further away
                     polygonOffsetUnits: 1
                 } );
+
+                /*
                 var geometry = new THREE.BoxGeometry( 
                     this.holderCoordinates.trays[trayname].width, 
                     this.holderCoordinates.size.dy,
                     Math.abs( this.holderCoordinates.structure.tapeThick ) 
                 );
+                */
+                var geometry = this.drawShape(
+                    this.holderCoordinates.trays[trayname].width,
+                    this.holderCoordinates.size.dy,
+                    material);
+
                 var tape = new THREE.Mesh( geometry, material );
                 tape.position.set( 
                     this.holderCoordinates.trays[trayname].x,
@@ -488,6 +496,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
 
             return platform;
         },
+        drawShape: function(width, length, material){
+            var rectShape = new THREE.Shape();
+            rectShape.moveTo( 0, 0 );
+            rectShape.lineTo( 0, width );
+            rectShape.lineTo( length, width );
+            rectShape.lineTo( length, 0 );
+            rectShape.lineTo( 0, 0 );
+
+            var rectGeom = new THREE.ShapeGeometry( rectShape );
+            var rectMesh = new THREE.Mesh( rectGeom, material ) ;
+            return rectMesh;
+        },
         /**
          * We subscribe to the main Eagle Widget's addGcode publish signal
          * so that we can inject our own Gcode to the main widget.
@@ -543,7 +563,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 setTimeout(function(){
                     that.mySceneGroup = null;
                     that.onTabShown();
-                }, 2000);
+                }, 5000);
             }
         },
         /**
