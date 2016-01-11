@@ -317,7 +317,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             this.sceneAdd( helper );
 
 
-            var trays = this.drawTrays();
+            var trays = this.drawTraysandPockets();
             trays.forEach(function(tray){
                 that.sceneAdd( tray );
             });
@@ -346,7 +346,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 this.holderCoordinates.pcbholder.deep);
             return pcbholder;
         },
-        drawTrays: function(){
+        drawTraysandPockets: function(){
             var trays = [];
 
             for (var trayname in this.holderCoordinates.trays) {
@@ -358,19 +358,13 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     polygonOffsetUnits: 1
                 } );
 
-                /*
                 var geometry = new THREE.BoxGeometry( 
                     this.holderCoordinates.trays[trayname].width, 
                     this.holderCoordinates.size.dy,
                     Math.abs( this.holderCoordinates.structure.tapeThick ) 
                 );
-                */
-                var geometry = this.drawShape(
-                    this.holderCoordinates.trays[trayname].width,
-                    this.holderCoordinates.size.dy,
-                    material);
-
                 var tape = new THREE.Mesh( geometry, material );
+
                 tape.position.set( 
                     this.holderCoordinates.trays[trayname].x,
                     this.holderCoordinates.zero.y,
@@ -397,6 +391,16 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 });
                 this.rotateObject(tapeTxt, 90);
                 tape.add(tapeTxt);
+
+                // add to onMouseOver event 
+                /* 
+                var arr = this.hash2array( this.components.forTrays[t[0]] );
+                tape.userData.smd = arr[0].smds[0].userData.smd;
+                tape.userData.smdName = arr[0].smds[0].userData.smdName;
+                tape.userData.type = arr[0].smds[0].userData.type;
+                this.eagleWidget.intersectObjects.push( tape );
+                */
+                
                 trays.push(tape);
             }
 
@@ -445,6 +449,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         },
         drawPlatform: function(){
             // Build box as platform
+            /*
             var geometry = new THREE.BoxGeometry( 
                 this.holderCoordinates.size.dx, 
                 this.holderCoordinates.size.dy, 
@@ -456,26 +461,31 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                      transparent: true,
                      opacity: 0.1
             } );
-            var platform = new THREE.Mesh( geometry, material );
+            */
+            var platform = this.drawBox(this.holderCoordinates.size.dx, this.holderCoordinates.size.dy);
             platform.position.set( 
-                this.holderCoordinates.zero.x, 
-                this.holderCoordinates.zero.y, 
-                (0 - (this.holderCoordinates.size.dz/2))-1.5
+                0-((this.holderCoordinates.size.dx/2) - this.holderCoordinates.zero.x),
+                0-((this.holderCoordinates.size.dy/2) - this.holderCoordinates.zero.y),
+                0
             );
 
             return platform;
         },
-        drawShape: function(width, length, material){
-            var rectShape = new THREE.Shape();
-            rectShape.moveTo( 0, 0 );
-            rectShape.lineTo( 0, width );
-            rectShape.lineTo( length, width );
-            rectShape.lineTo( length, 0 );
-            rectShape.lineTo( 0, 0 );
-
-            var rectGeom = new THREE.ShapeGeometry( rectShape );
-            var rectMesh = new THREE.Mesh( rectGeom, material ) ;
-            return rectMesh;
+        drawBox: function(blength, bwidth) {
+           var material = new THREE.LineBasicMaterial({
+              color: 0x777777
+           });
+        
+           var geometry = new THREE.Geometry();
+           geometry.vertices.push(
+              new THREE.Vector3( 0, 0, 0 ),
+              new THREE.Vector3( 0, bwidth, 0 ),
+              new THREE.Vector3( blength, bwidth, 0 ),
+              new THREE.Vector3( blength, 0, 0 ),
+              new THREE.Vector3( 0, 0, 0 )
+           );
+        
+           return new THREE.Line( geometry, material );
         },
         /**
          * We subscribe to the main Eagle Widget's addGcode publish signal
@@ -501,7 +511,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         onAddGcode : function(addGcodeCallback, gcodeParts, eagleWidget, helpDesc){
             console.log("Got onAddGcode:", arguments);
 
+            // if PNP widget startet (user activate the PNP Tab)
             if(! this.started())
+                return;
+
+            // if user don't want produce pnp gcode
+            if(! $('#' + this.id).find('.activepnpgcode').is(':checked') )
                 return;
 
             if( $('#' + this.id).find('.onlypnpgcode').is(':checked') ){
@@ -532,7 +547,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 setTimeout(function(){
                     that.mySceneGroup = null;
                     that.onTabShown();
-                }, 5000);
+                }, 2000);
             }
         },
         /**
@@ -1144,6 +1159,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 });
             });
 
+        },
+        hash2array: function(hash){
+            var ret = null;
+            for (var name in hash) {
+                if(ret == null)
+                    ret = [];
+                ret.push(hash[name]);
+            }
+            return ret;
         },
         // i.e.: this.searchObj(this.components.forTrays, 'TRAY', 'tray_6')
         searchObj: function(obj, path, search){
