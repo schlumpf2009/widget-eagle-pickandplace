@@ -8,3 +8,10 @@
     padding: 2px 6px;
 }
 
+.com-chilipeppr-widget-eagle-pickandplace-info-tray {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    font-size: 10px;
+    position: absolute;
+    width: 200px;
+}

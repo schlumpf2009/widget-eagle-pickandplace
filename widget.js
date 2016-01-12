@@ -228,6 +228,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         init: function(eagleWidget) {
             
+            if(eagleWidget === undefined)
+                return;
+                        
             this.eagleWidget = eagleWidget;
             console.log("I am being initted. eagleWidget:", this.eagleWidget);
 
@@ -308,7 +311,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * When the user move mouse over pocket or tray then display additional info's.
          */
         onMouseOverCallback: function(event, object) {
-            console.log('PNP onMouseOverCallback');
+            // console.log('PNP onMouseOverCallback');
+            var tray = object.object;
+            this.infoArea.find('.info-title').text("Pocket");
+            this.infoArea.removeClass('hidden');
+            this.infoArea.css('left', tray.userData.x + "px").css('top', tray.userData.y + "px");
+            this.eagleWidget.infoPlugin = this.infoArea; // register for mouseoverout
         },
         /**
          * Iterate through the Eagle BRD dimensions XY coordinates and draw
@@ -398,15 +406,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 });
                 this.rotateObject(tapeTxt, 90);
                 tape.add(tapeTxt);
-
-                // add to onMouseOver event to every tray or pocket to display 
-                // a window with additional informations 
-                tape.userData.onMouseOverCallback = function(event, object){
-                    console.log('PNP get onMouseOverCallback', event, object);
-                    this.onMouseOverCallback(event, object);
-                };
-                this.eagleWidget.intersectObjects.push( tape );
-
                 trays.push(tape);
             }
 
@@ -450,6 +449,21 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 pocket.add(pocketTxt);
                 trays.push(pocket);
             }
+
+            var that = this;
+            // add to onMouseOver event to every tray or pocket to display 
+            // a window with additional informations 
+            trays.forEach(function(tray) {
+                tray.userData.onMouseOverCallback = function(event, object){
+                    if(object.onMouse == true)
+                        return;
+                    object.onMouse = true;
+                    // console.log('PNP get onMouseOverCallback', event, object);
+                    that.onMouseOverCallback(event, object);
+                    object.onMouse = false;
+                };
+                that.eagleWidget.intersectObjects.push( tape );
+            });
 
             return trays;
         },
@@ -1046,6 +1060,10 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 that.holderCoordinates = data;                
             });
             */
+
+            this.renderArea = $('#com-chilipeppr-widget-3dviewer-renderArea');
+            this.infoArea = $('.com-chilipeppr-widget-eagle-pickandplace-info-tray');
+            this.infoArea.prependTo(this.renderArea);
 
             $('#pnp-refresh').click(function(evt){
                that.setupComponentsTable();
