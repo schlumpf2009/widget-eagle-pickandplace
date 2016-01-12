@@ -72,7 +72,8 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-pickandplace"], function(pic
             // now load the eagle widget, so that we can init our solder mask widget
             chilipeppr.load(
                 "#test-eagle",
-                "https://raw.githubusercontent.com/chilipeppr/widget-eagle/master/auto-generated-widget.html",
+//              "https://raw.githubusercontent.com/chilipeppr/widget-eagle/master/auto-generated-widget.html",
+                "https://raw.githubusercontent.com/xpix/widget-eagle/master/auto-generated-widget.html",
                 function() {
                     // Callback after widget loaded into #myDivWidgetInsertedInto
                     
@@ -335,6 +336,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             this.sceneRemove(this.pnp3d);
         },
         /**
+         * When the user move mouse over pocket or tray then display additional info's.
+         */
+        onMouseOverCallback: function(event, object) {
+            console.log('PNP onMouseOverCallback');
+        },
+        /**
          * Iterate through the Eagle BRD dimensions XY coordinates and draw
          * a solder mask over the board.
          */
@@ -423,15 +430,14 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 this.rotateObject(tapeTxt, 90);
                 tape.add(tapeTxt);
 
-                // add to onMouseOver event 
-                /* 
-                var arr = this.hash2array( this.components.forTrays[t[0]] );
-                tape.userData.smd = arr[0].smds[0].userData.smd;
-                tape.userData.smdName = arr[0].smds[0].userData.smdName;
-                tape.userData.type = arr[0].smds[0].userData.type;
+                // add to onMouseOver event to every tray or pocket to display 
+                // a window with additional informations 
+                tape.userData.onMouseOverCallback = function(event, object){
+                    console.log('PNP get onMouseOverCallback', event, object);
+                    this.onMouseOverCallback(event, object);
+                };
                 this.eagleWidget.intersectObjects.push( tape );
-                */
-                
+
                 trays.push(tape);
             }
 
