@@ -149,6 +149,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         /**
          * PICK AND PLACE VARIABLES.
          */
+        /**
+         * BETA: Save smd 3d models from https://eagleup.wordpress.com/ in 
+         * sketchup 3d warehouse and use there 3d model viewer at popup for trays
+         * URL Database to my 3dwarehouse gallery, later we save this as json file and load this dynamic
+         * some examples
+         */
+        packages3D:{
+            'C0603': 'https://3dwarehouse.sketchup.com/embed.html?mid=ub1b01b5b-2631-43f4-88f0-d2ae7a9ef7ae',
+            'C0805': 'https://3dwarehouse.sketchup.com/embed.html?mid=ub6fa6b56-cded-4b48-b61b-19b84cfdcf84',
+            'R0603': 'https://3dwarehouse.sketchup.com/embed.html?mid=u1ac1438a-16ce-491b-a128-d039d96cbb5f',
+            'R0805': 'https://3dwarehouse.sketchup.com/embed.html?mid=ua6fc0469-d44e-43eb-87db-0f9f119f8a62'
+        },
         pnpholders: {
             'PNP Holder V0.1': 'pnp_holder_v0.1'
         },
@@ -349,9 +361,25 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * When the user move mouse over pocket or tray then display additional info's.
          */
         onMouseOverCallback: function(event, object) {
-            // console.log('PNP onMouseOverCallback');
             var tray = object.object;
-            this.infoArea.find('.info-title').text("Pocket");
+
+            tray.material.opacityBackup = tray.material.opacity;
+            tray.material.opacity = 1;            
+
+            // Set infos ...
+            console.log('PNP onMouseOverCallback', object);
+            var cmp = tray.userData.component || null;
+            if(cmp == null) return;
+
+            var names = Object.keys(this.getObjects(tray.userData.component));
+            if(cmp)
+                var firstElement = this.hash2array(cmp)[0];
+            
+            this.infoArea.find('.info-title').text(tray.userData.pocketname);
+            this.infoArea.find('.info-value').text(firstElement.value || firstElement.name);
+            this.infoArea.find('.info-package').text(firstElement.pkg);
+            this.infoArea.find('.info-names').text(names.join(','));
+
             this.infoArea.removeClass('hidden');
             this.infoArea.css('left', tray.userData.x + "px").css('top', tray.userData.y + "px");
             this.eagleWidget.infoPlugin = this.infoArea; // register for mouseoverout
@@ -402,14 +430,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         drawTraysandPockets: function(){
             var trays = [];
 
+            var materialDefaults = {
+                color: 0xaaaaaa, 
+                transparent: true,
+                opacity: 0.5,
+                shading: THREE.FlatShading,
+                polygonOffset: true,
+                polygonOffsetFactor: 1, // positive value pushes polygon further away
+                polygonOffsetUnits: 1
+            }; 
+
             for (var trayname in this.holderCoordinates.trays) {
-                var material = new THREE.MeshPhongMaterial( {
-                    color: 0xaaaaaa, 
-                    shading: THREE.FlatShading,
-                    polygonOffset: true,
-                    polygonOffsetFactor: 1, // positive value pushes polygon further away
-                    polygonOffsetUnits: 1
-                } );
+                var componentName = null;
+                var material = new THREE.MeshPhongMaterial( materialDefaults  );
 
                 var geometry = new THREE.BoxGeometry( 
                     this.holderCoordinates.trays[trayname].width, 
@@ -429,6 +462,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 var t = this.searchObj(this.components.forTrays, 'TRAY', trayname);
                 if( t != null ){
                     tape.material.color.setHex( 0xeeffee );
+                    componentName = t[0];
                     text = ' [ ' + t[0] + ' ]';
                 }
                 
@@ -444,17 +478,16 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 });
                 this.rotateObject(tapeTxt, 90);
                 tape.add(tapeTxt);
+                if(componentName != null)
+                    tape.userData.component = this.components.forTrays[componentName];
+                tape.userData.pocketname = this.holderCoordinates.trays[trayname].name;
                 trays.push(tape);
             }
 
             for (var pocketname in this.holderCoordinates.pockets) {
-                var material = new THREE.MeshPhongMaterial( {
-                    color: 0xaaaaff, 
-                    shading: THREE.FlatShading,
-                    polygonOffset: true,
-                    polygonOffsetFactor: 1, // positive value pushes polygon further away
-                    polygonOffsetUnits: 1
-                } );
+                var componentName = null;
+                materialDefaults.color = 0xaaaaff;
+                var material = new THREE.MeshPhongMaterial( materialDefaults );
                 var geometry = new THREE.BoxGeometry( 
                     this.holderCoordinates.pockets[pocketname].width, 
                     this.holderCoordinates.pockets[pocketname].width, 
@@ -471,6 +504,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 var t = this.searchObj(this.components.forPockets, 'POCKET', pocketname);
                 if( t != null ){
                     pocket.material.color.setHex( 0xaaffaa );
+                    componentName = t[0];
                     text = '[' + t[0] + ']';
                 }
 
@@ -485,6 +519,10 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     size: 2
                 });
                 pocket.add(pocketTxt);
+                if(componentName != null)
+                    pocket.userData.component = this.components.forPockets[componentName];
+                pocket.userData.pocketname = this.holderCoordinates.pockets[pocketname].name;
+
                 trays.push(pocket);
             }
 
@@ -1222,6 +1260,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             });
 
         },
+        getObjects: function(hash){
+           var ret = {};
+           for(var name in hash){
+              if($.type(hash[name]) == 'object'){
+                ret[name] = hash[name];
+              }
+           }
+           return ret;
+        },
         hash2array: function(hash){
             var ret = null;
             for (var name in hash) {
@@ -1369,6 +1416,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                         <td class="">Names</td>
                         <td class="info-names"></td>
                     </tr>
+                    <!--
+                    <tr class="">
+                        <td class="">Vorschau</td>
+                        <td class="info-vorschau"><iframe src="https://3dwarehouse.sketchup.com/embed.html?mid=u1ac1438a-16ce-491b-a128-d039d96cbb5f&width=290&height=163?etp=im" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" width="290" height="163"></iframe></td>
+                    </tr>
+                    -->
                 </tbody>
             </table>
       </div>
