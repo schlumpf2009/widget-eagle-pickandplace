@@ -462,7 +462,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     that.onMouseOverCallback(event, object);
                     object.onMouse = false;
                 };
-                that.eagleWidget.intersectObjects.push( tape );
+                that.eagleWidget.intersectObjects.push( tray );
             });
 
             return trays;
