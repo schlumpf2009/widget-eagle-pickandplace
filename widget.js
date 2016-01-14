@@ -573,21 +573,21 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             if(! this.started())
                 return;
 
-            // if user don't want produce pnp gcode
-            if(! $('#' + this.id).find('.activepnpgcode').is(':checked') )
-                return;
-
             if( $('#' + this.id).find('.onlypnpgcode').is(':checked') ){
                 // remove all milling code for testing or to choose only pnp
-                gcodeParts[200] = undefined;
-                gcodeParts[300] = undefined;
-                gcodeParts[400] = undefined;
-                gcodeParts[500] = undefined;
-                gcodeParts[600] = undefined;
-                gcodeParts[700] = undefined;
+                for(var i = 200;i<=1499;i++){
+                    gcodeParts[i] = undefined;
+                    
+                }
             }
-            
-            addGcodeCallback(1500, this.exportGcodepickandplace(eagleWidget) );
+
+            // if user don't want produce pnp gcode
+            if($('#' + this.id).find('.activepnpgcode').is(':checked') ){
+                addGcodeCallback(1500, this.exportGcodepickandplace(eagleWidget) );
+            }
+            else {
+                gcodeParts[1500] = undefined;
+            }
         },
         /**
          * After Render Register all components and sort to the trays and pockets
