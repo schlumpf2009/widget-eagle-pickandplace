@@ -308,6 +308,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     child.visible = true; 
                 });
             } else {
+                if(this.registered === undefined)
+                    this.onBeforeRender(this.eagleWidget);
                 this.drawpickandplace();
             }
         },
@@ -686,6 +688,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         registerEagleComponents: function(self){
             console.group("registerEagleComponents", self.eagle.elements);
             
+            this.registered = true;
+                        
             // refresh, remove old entrys
             this.components['forTrays'] = {};
             this.components['forPockets'] = {};
