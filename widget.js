@@ -59,7 +59,7 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-pickandplace"], function(pic
                             eagleWidget.init(true);
                             
                             // now init our own widget
-                            //pickandplace.init(eagleWidget);
+                            pickandplace.init(eagleWidget);
                         }
                     );
                     
@@ -240,8 +240,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         init: function(eagleWidget) {
             
-            if(eagleWidget === undefined)
-                return;
+            //if(eagleWidget === undefined)
+            //    return;
                         
             this.eagleWidget = eagleWidget;
             console.log("I am being initted. eagleWidget:", this.eagleWidget);
