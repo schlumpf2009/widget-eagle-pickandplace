@@ -59,7 +59,7 @@ cprequire_test(["inline:com-chilipeppr-widget-eagle-pickandplace"], function(pic
                             eagleWidget.init(true);
                             
                             // now init our own widget
-                            pickandplace.init(eagleWidget);
+                            //pickandplace.init(eagleWidget);
                         }
                     );
                     
