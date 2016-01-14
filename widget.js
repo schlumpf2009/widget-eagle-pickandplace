@@ -240,7 +240,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          */
         init: function(eagleWidget) {
             
-            //if(eagleWidget === undefined)
+            // if(eagleWidget === undefined)
             //    return;
                         
             this.eagleWidget = eagleWidget;
