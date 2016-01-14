@@ -722,7 +722,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * Read all eagle components and decide for try or pocket or ignore.
          */
         registerEagleComponents: function(self){
-            console.group("registerEagleComponents");
+            console.group("registerEagleComponents", self.eagle.elements);
             
             // refresh, remove old entrys
             this.components['forTrays'] = {};
