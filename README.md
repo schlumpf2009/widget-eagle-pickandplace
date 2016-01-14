@@ -1,7 +1,7 @@
 # com-chilipeppr-widget-eagle-pickandplace
 This add-on widget is a tab for the Eagle BRD widget that helps you generate gcode for pick and place smd components to a pcb.
 
-
+![alt text](screenshot.png "Screenshot")
 
 ## ChiliPeppr Widget Add-On / Pick and Place
 
