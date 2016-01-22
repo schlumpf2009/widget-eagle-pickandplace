@@ -613,6 +613,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             if(! this.started())
                 return;
 
+            chilipeppr.publish("/com-chilipeppr-elem-flashmsg/flashmsg", "Generate <b>Pick&Place</b> G-Code", "Rendering Pick and Place g-code moves.", 1 * 1000);
+
+
             if( $('#' + this.id).find('.onlypnpgcode').is(':checked') ){
                 // remove all milling code for testing or to choose only pnp
                 for(var i = 200;i<=1499;i++){
