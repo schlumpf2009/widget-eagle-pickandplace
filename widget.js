@@ -779,7 +779,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // set element to tray
             var i = 0, that = this;
             sorthash.forEach(function(entry){
-                if(trays[i].k !== undefined){
+                if(trays[i] !== undefined){
                     entry.t = trays[i].k;                      
                     that.components.forTrays[entry.k]['TRAY'] = entry.t;
                 }
