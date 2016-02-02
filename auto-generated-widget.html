@@ -817,8 +817,11 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // set element to tray
             var i = 0, that = this;
             sorthash.forEach(function(entry){
-                entry.t = trays[i++].k;                      
-                that.components.forTrays[entry.k]['TRAY'] = entry.t;
+                if(trays[i].k !== undefined){
+                    entry.t = trays[i].k;                      
+                    that.components.forTrays[entry.k]['TRAY'] = entry.t;
+                }
+                i++;
             });
             console.log('PNP Object: ', this);
 
