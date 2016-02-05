@@ -670,7 +670,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                         || that.components.forPockets[ elemValue ];
                if($.type(d) == 'object')
                    that.selectbox(
-                      '#trays_' + elemValue.replace(/\./ig, '_'), 
+                      '#trays_' + elemValue.replace(/[\.\%]/ig, '_'), 
                       that.holderCoordinates[ type ],
                       output, 
                       (type == 'trays' ? d.TRAY : d.POCKET) 
