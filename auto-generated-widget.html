@@ -1344,6 +1344,19 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             </div>
             <p class="descriptive-text">Measure the highest point (Screwheads o.a.) and add one mm to the safety height.</p>
 
+            PNP Position Offset for X and Y-Axis
+            <div class="input-group">
+                <div class="input-group-addon">X:</div>
+                <input class="form-control PNPXoffset" type="number" placeholder="Offsets" value="0" xdisabled />
+                <div class="input-group-addon">mm</div>
+            </div>
+            <div class="input-group">
+                <div class="input-group-addon">Y:</div>
+                <input class="form-control PNPYoffset" type="number" placeholder="Offsets" value="0" xdisabled />
+                <div class="input-group-addon">mm</div>
+            </div>
+            <p class="descriptive-text">Offset of the PNP Stepper to the center of spindle.</p>
+
             PNP Holder
             <div class="input-group">
                <select class="form-control pnpholders"></select>
