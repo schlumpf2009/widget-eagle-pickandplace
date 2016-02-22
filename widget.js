@@ -891,10 +891,13 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                   if($.type(evalue[cmpName]) != 'object')
                      continue; // ignore tray entrys
 
+                  // compensate runout of nozzle
+                  var runout = this.PointOnCircle(this.options.nozzleRunout, parseInt(evalue[cmpName].rot.replace(/\D+/ig, '')));
+
                   // get cmp from tray
                   g += this.tapeStrategy( evalue[cmpName], evalue['TRAY'] );
                   g += this.rotateStrategy( evalue[cmpName] );
-                  g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
+                  g += "G0 X" + (evalue[cmpName].x + runout.x).toFixed(4) + " Y" + (evalue[cmpName].y + runout.y).toFixed(4) + "\n";
                   g += this.putStrategy( evalue[cmpName] );
                }
             }
@@ -905,8 +908,11 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                   if($.type(evalue[cmpName]) != 'object')
                      continue; // ignore tray entrys
 
+                  // compensate runout of nozzle
+                  var runout = this.PointOnCircle(this.options.nozzleRunout, parseInt(evalue[cmpName].rot.replace(/\D+/ig, '')));
+
                   g += this.rotateStrategy( evalue[cmpName] );
-                  g += "G0 X" + evalue[cmpName].x + " Y" + evalue[cmpName].y + "\n";
+                  g += "G0 X" + (evalue[cmpName].x + runout.x).toFixed(4) + " Y" + (evalue[cmpName].y + runout.y).toFixed(4) + "\n";
                   g += this.putStrategy( evalue[cmpName] );
                }
             }
@@ -988,25 +994,48 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            var tray = this.holderCoordinates.trays[ trayname ];
            var structure = this.holderCoordinates.structure;
            var dia = this.nozzleDiameter;
+           var runout = this.PointOnCircle(this.options.nozzleRunout, 0);
            var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
            
            g += "G0 Z" + this.safetyHeight + "\n";
-           g += "G0 X" + tray.x + "Y" + tray.y + "\n";         // now we moved to zero pint of tray
+           g += "G0 X" + tray.x + " Y" + (tray.y + runout.y).toFixed(4) + "\n";         // now we moved to zero pint of tray
 
            g += "G91" + "\n";                                  // set to relative coordination system
            g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
            g += "G0 Z-" + this.safetyHeight  + "\n";      // go down to zero  z-axis
-           g += "G1 F" + structure.feedrate + "Z" + structure.tapeThick  + "\n";      // go into the hole
-           g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff +" )\n";
-           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff)  + "\n"; // go up in Y Axis to get next component
+           g += "G1 F" + structure.feedrate + " Z" + structure.tapeThick  + "\n";      // go into the hole
+
+           g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff + " runout: " + runout.x +', ' + runout.y + " )\n";
+
+           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff + runout.y).toFixed(4)  + "\n"; // go up in Y Axis to get next component
            g += "G0 Z" + this.safetyHeight + "\n";
-           g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
+
+           g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff + runout.y).toFixed(4) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
 
            g += "G90" + "\n";                                  // set to relative coordination system
            g += "G0 Z" + this.safetyHeight + "\n";
            
            return g;
+        },
+        /**
+         * Calculate a point on a circle.
+         */
+        PointOnCircle(diameter, angel){
+            var point = {x:0, y:0};
+            if(diameter == 0)
+                return point;
+
+            if(angel == 0)
+                angel = 0.001;
+            var radius = diameter/2;
+            var r = angel*(Math.PI/180);
+
+            // Calculate point on circle
+            point.y = (radius*Math.cos(r));
+            point.x = (radius*Math.sin(r));
+console.log('PointOnCircle: ', diameter, angel, point);
+            return point;
         },
         /**
          * return 3dobject from 3dviewer.
@@ -1121,6 +1150,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             that.reginput('safetyHeight');
             that.reginput('rotateAxis');
             that.reginput('nozzleDiameter');
+            that.reginput('nozzleRunout');
             that.reginput('packagesTrays');
             
             that.reginput();
@@ -1139,6 +1169,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                     console.log("evt:", evt);
                     var value = evt.currentTarget.value;
                     that.options[field] = that.getValue(value, that[field]);
+                    if(that[field] !== 'undefined')
+                        that[field] = that.options[field];
                     console.log(that.options);
                     that.saveOptionsLocalStorage();
                 });
