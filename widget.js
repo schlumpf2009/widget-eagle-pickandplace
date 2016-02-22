@@ -1034,7 +1034,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // Calculate point on circle
             point.y = (radius*Math.cos(r));
             point.x = (radius*Math.sin(r));
-console.log('PointOnCircle: ', diameter, angel, point);
             return point;
         },
         /**
