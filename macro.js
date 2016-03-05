@@ -1,6 +1,5 @@
 /* global macro chilipeppr */
 /* 
-// works only with GRBL as main controller! (State event)
 
 This macro shows how to watch for the chilipeppr
 pause sync event that is triggered if you include
@@ -22,7 +21,12 @@ X-Move: 0.6mm
 
 */
 var myWatchChiliPepprPause = {
-   serialPort: "COM10",
+   serialPort: "/dev/ttyUSB0",
+   vacuumCommands: {
+      on:  ['M5', 'M8'],   // 1.valve: open | 2.valve: close
+      off: ['M3', 'M9'],   // 1.valve: close| 2.valve: open
+      reset: ['M5', 'M9']  // switch off all values
+   },
    feedRate: 100,
    init: function() {
       // Uninit previous runs to unsubscribe correctly, i.e.
@@ -36,7 +40,13 @@ var myWatchChiliPepprPause = {
       
       // store macro in window object so we have it next time thru
       window["myWatchChiliPepprPause"] = this;
-      
+
+      if (!Array.prototype.last){
+          Array.prototype.last = function(){
+              return this[this.length - 1];
+          };
+      };
+
       this.setupSubscribe();
       
       chilipeppr.publish("/com-chilipeppr-elem-flashmsg/flashmsg", "XDisPlace Macro", "Send commands to second xdisplace controller for Dispense and Pick&Place");
@@ -53,34 +63,30 @@ var myWatchChiliPepprPause = {
       // onComplete events
       chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute);
       chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnComplete);
-      chilipeppr.subscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onChiliPepprStateChanged);
    },
    unsetupSubscribe: function() {
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute);
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnComplete);
-      chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onChiliPepprStateChanged);
-   },
-   onChiliPepprStateChanged: function(state){
-      this.State = state; // Save state, works only with GRBL!
    },
    onChiliPepprPauseOnExecute: function(data) {
+      this.parseComment(data);
       this.onPauseAction(data);
    },
    onChiliPepprPauseOnComplete: function(data) {
       this.parseComment(data);
-      setTimeout(this.onPauseAction.bind(this), 250);
+      this.onPauseAction(data);
    },
    unpauseGcode: function() {
       macro.status("Just unpaused gcode.");
       chilipeppr.publish("/com-chilipeppr-widget-gcode/pause", "");
    },
-   ctr: 0,
+   ctr: 100,
    parseComment: function(data){
-      var gcode = data.gcode;
-      gcode = gcode.replace(')','');
+      this.GCODE = data.gcode;
+      var gcode = this.GCODE.replace(')','');
       // save only relevant gcode string for second device
       this.release                  = 0.06;
-      this.GCmd                     = gcode.split(' ').slice(2,3);
+      this.GCmd                     = gcode.split(' ').slice(2,3)[0];
       this.Command                  = null;
 
       if(this.GCmd.match(/drop/)){
@@ -89,22 +95,34 @@ var myWatchChiliPepprPause = {
          this.DispenserMove            = parseFloat(gcode.split(' ').slice(-1).toString().replace(/[a-z]/ig, ''));
          this.DispenserGcode           = gcode.split(' ').slice(-3).join(' ') + "\n";
          this.DispenserReleaseGcode    = "G0 X-" + this.release + "\n";
+         this.Wait                     = this.distance2time(this.DispenserMove+this.release);
       }
 
       if(this.GCmd.match(/vacuum/)){
          // (chilipeppr_pause vacuum false)
-         this.Command                  = 'vacuum';
-         this.VacuumState              = (gcode.split(' ')[-1] == 'true' ? true : false);
+         this.Command             = 'vacuum';
+         this.VacuumState         = (gcode.split(' ').last() == 'true' ? true : false);
+         this.Wait                = 250;
+      }
+
+      if(this.GCmd.match(/vacuum\s+reset/)){
+         // (chilipeppr_pause vacuum reset)
+         this.Command             = 'vacuum_reset';
+         this.Wait                = 250;
+      }
+
+      if(this.GCmd.match(/rotate/)){
+         // (chilipeppr_pause rotate G1 Z0.9)
+         this.Command             = 'rotate';
+         this.Rotate              = gcode.match(/(\d+)\)$/);
+         this.RotateGcode         = gcode.split(' ').slice(-3).join(' ') + "\n";
+         this.Wait                = this.distance2time(this.Rotate);
       }
       
-      macro.status("Send to : " + this.serialPort + ' cmd: "' + this.GCmd + '"');
+console.log('MACRO: ', this);
    },
    onPauseAction: function(data) {
       // wait on main controller's idle state (think asynchron!)
-      if(this.State != "Idle"){ // wait for idle state
-         setTimeout(this.onPauseAction.bind(this), 250);
-         return;
-      }
       var payload,
       cmd = "sendjson ";
 
@@ -114,9 +132,17 @@ var myWatchChiliPepprPause = {
       if(this.Command == 'vacuum')
          payload = this.vacuum();
 
+      if(this.Command == 'vacuum_reset')
+         payload = this.vacuum('reset');
+
+      if(this.Command == 'rotate')
+         payload = this.rotate();
+
       cmd += JSON.stringify(payload) + "\n";
+      macro.status("Send to : " + this.serialPort + ' cmd: "' + payload.Data.last().D.replace(/\n/,'') + '" Timeout: ' + this.Wait + ' ms');
       chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
-      setTimeout(this.unpauseGcode, 1000); // give action some time
+
+      setTimeout(this.unpauseGcode, this.Wait); // give action some time
    },
    dispense: function(){
       this.ctr++;
@@ -140,17 +166,45 @@ var myWatchChiliPepprPause = {
          ]
       };
    },
-   vacuum: function(){
+   vacuum: function(reset){
+      if(reset !== undefined){
+         return {
+            P: this.serialPort,
+            Data: [
+               {
+                  D: this.vacuumCommands.reset.join(' ') + "\n",
+                  Id: "vacuum " + this.VacuumState
+               }
+   
+            ]
+         };
+      } else {
+         return {
+            P: this.serialPort,
+            Data: [
+               {
+                  D: (this.VacuumState ? this.vacuumCommands.on.join(' ') : this.vacuumCommands.off.join(' ')) + "\n",
+                  Id: "vacuum " + this.VacuumState
+               }
+   
+            ]
+         };
+      }
+   },
+   rotate: function(){
       return {
          P: this.serialPort,
          Data: [
             {
-               D: (this.VacuumState ? 'M3' : 'M5') + "\n",
-               Id: "vacuum " + this.VacuumState
+               D: this.RotateGcode,
+               Id: "rotate " + ++this.ctr
             }
 
          ]
       };
-   }
+   },
+   distance2time:function(distance){
+      return (distance / this.feedRate) * (60*1000); // distane in milliseconds
+   },
 };
 myWatchChiliPepprPause.init();

@@ -186,14 +186,14 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             trays: {
                 // Trays are numbered and pockets has letters
                 // x and y coordinates are realtive to zero point of PNP Holder
-                tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 90 },
-                tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 90 },
-                tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 90 },
-                tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 90 },
-                tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 90 },
-                tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 90 },
-                tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 90 },
-                tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 90 },
+                tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 75 },
+                tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 75 },
+                tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 75 },
+                tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 75 },
+                tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 75 },
+                tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 75 },
+                tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 75 },
+                tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 75 },
             },
             pockets: {
                 Pocket_A: { name: 'Pocket A',   width: 15, x: -23, y: 21 },
@@ -952,8 +952,12 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                   g += this.rotateStrategy( evalue[cmpName] );
                   g += "G0 X" + (evalue[cmpName].x + runout.x).toFixed(4) + " Y" + (evalue[cmpName].y + runout.y).toFixed(4) + "\n";
                   g += this.putStrategy( evalue[cmpName] );
+                  g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + '0' + ")\n"; // rotate back to zero
                }
             }
+
+            g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + '0' + ")\n"; // rotate back to zero
+            g += "(chilipeppr_pause vacuum reset)\n"; // deenergyze valves
 
             console.log('PNP gcode: ', g);
 
