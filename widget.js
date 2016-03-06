@@ -1004,7 +1004,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
            var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
            
            g += "G0 Z" + this.safetyHeight + "\n";
-           g += "G0 X" + tray.x + " Y" + (tray.y - runout.y).toFixed(4) + "\n";         // now we moved to zero pint of tray
+           g += "G0 X" + tray.x + " Y" + tray.y.toFixed(4) + "\n";         // now we moved to zero pint of tray
 
            g += "G91" + "\n";                                  // set to relative coordination system
            g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
