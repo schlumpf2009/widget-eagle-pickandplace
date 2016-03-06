@@ -932,7 +932,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             var rotate = cmp.rot;
             rotate = parseInt(rotate.replace(/\D+/ig, ''));
             if(rotate)
-                rotate = rotate / 10;
+                rotate = rotate / 100;
             console.log('PNP rotate', rotate);
             // we choose a stepper with 200 steps for 360°
             // $103=55.55 ... rotate for 90° = 0.9, rotate for 180° = 1.8
