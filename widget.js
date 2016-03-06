@@ -1187,7 +1187,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                 console.log('Options', this.options );
                 for(var key in this.options){
                     // read from options, set and trigger change
-                    el.find('.' + key).val(this.setValue(this.options[key], key));
+                    el.find('.' + key).val(this.setValue(this.options[key], key)).trigger('change');
                 }
             }
         },
