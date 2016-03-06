@@ -62,11 +62,11 @@ var myWatchChiliPepprPause = {
       // get onExecute events while Grbl will only get
       // onComplete events
       chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute);
-      chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnComplete);
+      // chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnComplete);
    },
    unsetupSubscribe: function() {
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute);
-      chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnComplete);
+      //chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnComplete);
    },
    onChiliPepprPauseOnExecute: function(data) {
       this.parseComment(data);
@@ -114,7 +114,7 @@ var myWatchChiliPepprPause = {
       if(this.GCmd.match(/rotate/)){
          // (chilipeppr_pause rotate G1 Z0.9)
          this.Command             = 'rotate';
-         this.Rotate              = gcode.match(/(\d+)\)$/);
+         this.Rotate              = parseFloat(gcode.split(' ').last().replace(/\D+/,''));
          this.RotateGcode         = gcode.split(' ').slice(-3).join(' ') + "\n";
          this.Wait                = this.distance2time(this.Rotate);
       }
@@ -143,6 +143,7 @@ console.log('MACRO: ', this);
       chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
 
       setTimeout(this.unpauseGcode, this.Wait); // give action some time
+      //setTimeout(this.unpauseGcode, 1000); // give action some time
    },
    dispense: function(){
       this.ctr++;
