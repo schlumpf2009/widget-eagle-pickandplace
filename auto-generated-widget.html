@@ -937,6 +937,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                   g += this.rotateStrategy( evalue[cmpName] );
                   g += "G0 X" + (evalue[cmpName].x + runout.x).toFixed(4) + " Y" + (evalue[cmpName].y + runout.y).toFixed(4) + "\n";
                   g += this.putStrategy( evalue[cmpName] );
+                  g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + '0' + ")\n"; // rotate back to zero
                }
             }
 
