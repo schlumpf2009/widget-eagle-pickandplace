@@ -176,7 +176,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             sortAxis: 'x',          // Axis for calculate ways
             pcbholder: {dx: 120, dy: 80, deep: -1}, // dimensions of pcb holder
             structure: {            // http://www.token.com.tw/chip-resistor/smd-resistor1.htm
-               feedrate: 100,                               // slow feedrate in mm/min
+               feedrate: 500,                               // slow feedrate in mm/min
                tapeThick: -1,                               // how thick are the tape
                holeDiameter: 1.5,                           // check parameter "D" in website
                holeBorderDistance: 1.75,                    // check parameter "E" in website
@@ -186,14 +186,14 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             trays: {
                 // Trays are numbered and pockets has letters
                 // x and y coordinates are realtive to zero point of PNP Holder
-                tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 75 },
-                tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 75 },
-                tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 75 },
-                tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 75 },
-                tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 75 },
-                tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 75 },
-                tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 75 },
-                tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 75 },
+                tray_1: { name: 'Tray Nr. 1',   width: 8, x: -106, y: 76 },
+                tray_2: { name: 'Tray Nr. 2',   width: 8, x: -96,  y: 76 },
+                tray_3: { name: 'Tray Nr. 3',   width: 8, x: -86,  y: 76 },
+                tray_4: { name: 'Tray Nr. 4',   width: 8, x: -76,  y: 76 },
+                tray_5: { name: 'Tray Nr. 5',   width: 8, x: -66,  y: 76 },
+                tray_6: { name: 'Tray Nr. 6',   width: 8, x: -56,  y: 76 },
+                tray_7: { name: 'Tray Nr. 7',   width: 8, x: -46,  y: 76 },
+                tray_8: { name: 'Tray Nr. 8',   width: 8, x: -36,  y: 76 },
             },
             pockets: {
                 Pocket_A: { name: 'Pocket A',   width: 15, x: -23, y: 21 },
@@ -1033,34 +1033,39 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * return gcode to get cmp from tape.
          */
         tapeStrategy: function(cmp, trayname){
-           var g = "";
-           g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
-           var tray = this.holderCoordinates.trays[ trayname ];
-           var structure = this.holderCoordinates.structure;
-           var dia = this.nozzleDiameter;
-           var runout = this.PointOnCircle(this.options.nozzleRunout, 0);
-           var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
-           
-           g += "G0 Z" + this.safetyHeight + "\n";
-           g += "G0 X" + tray.x + " Y" + tray.y.toFixed(4) + "\n";         // now we moved to zero pint of tray
+            var g = "";
+            g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
+            var tray = this.holderCoordinates.trays[ trayname ];
+            var structure = this.holderCoordinates.structure;
+            var dia = this.nozzleDiameter;
+            var runout = this.PointOnCircle(this.options.nozzleRunout, 0);
+            var nozzlediff = ((structure.holeDiameter/2)-(dia/2));
 
-           g += "G91" + "\n";                                  // set to relative coordination system
-           g += "G0 X" + structure.holeBorderDistance  + "\n"; // move over the center of first hole
-           g += "G0 Z-" + this.safetyHeight  + "\n";      // go down to zero  z-axis
-           g += "G1 F" + structure.feedrate + " Z" + structure.tapeThick  + "\n";      // go into the hole
+            g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff + " runout: " + runout.x +', ' + runout.y + " )\n";
 
-           g += "(nozzleDiameter: " + dia + " holediameter: " + structure.holeDiameter + " nozzlediff: " + nozzlediff + " runout: " + runout.x +', ' + runout.y + " )\n";
+            
+            g += "G0 Z" + this.safetyHeight + "\n";
+            // now we moved to center point of tray holes
+            g += "G0 X" + (tray.x + structure.holeBorderDistance) + " Y" + (tray.y-0.1) + "\n";
+            
+            // set to relative coordination system
+            g += "G91" + "\n";
+            // go down to zero  z-axis
+            g += "G0 Z-" + this.safetyHeight  + "\n";
+            // move into the hole
+            g += "G1 F" + structure.feedrate + " Z" + structure.tapeThick  + "\n";
 
-           g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance + nozzlediff + runout.y).toFixed(4)  + "\n"; // go up in Y Axis to get next component
-           g += "G0 Z" + this.safetyHeight + "\n";
-
-           g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y + nozzlediff + runout.y).toFixed(4) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
-           g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
-
-           g += "G90" + "\n";                                  // set to relative coordination system
-           g += "G0 Z" + this.safetyHeight + "\n";
-           
-           return g;
+            // move up in Y Axis to get next component
+            g += "G1 F" + structure.feedrate + " Y" + structure.holeDistance  + "\n";
+            g += "G0 Z" + this.safetyHeight + "\n";
+            
+            g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y+nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
+            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
+            
+            g += "G90" + "\n";                                  // set to relative coordination system
+            g += "G0 Z" + this.safetyHeight + "\n";
+            
+            return g;
         },
         /**
          * Calculate a point on a circle.
