@@ -987,6 +987,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         tapeStrategy: function(cmp, trayname){
             var g = "";
             g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
+            var offset = 0.1;
             var tray = this.holderCoordinates.trays[ trayname ];
             var structure = this.holderCoordinates.structure;
             var dia = this.nozzleDiameter;
@@ -998,7 +999,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             
             g += "G0 Z" + this.safetyHeight + "\n";
             // now we moved to center point of tray holes
-            g += "G0 X" + (tray.x + structure.holeBorderDistance) + " Y" + (tray.y-0.1) + "\n";
+            g += "G0 X" + (tray.x + structure.holeBorderDistance) + " Y" + (tray.y-offset) + "\n";
             
             // set to relative coordination system
             g += "G91" + "\n";
@@ -1008,7 +1009,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             g += "G1 F" + structure.feedrate + " Z" + structure.tapeThick  + "\n";
 
             // move up in Y Axis to get next component
-            g += "G1 F" + structure.feedrate + " Y" + structure.holeDistance  + "\n";
+            g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance+offset)  + "\n";
             g += "G0 Z" + this.safetyHeight + "\n";
             
             // move to center of cmp

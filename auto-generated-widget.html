@@ -149,18 +149,6 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         /**
          * PICK AND PLACE VARIABLES.
          */
-        /**
-         * BETA: Save smd 3d models from https://eagleup.wordpress.com/ in 
-         * sketchup 3d warehouse and use there 3d model viewer at popup for trays
-         * URL Database to my 3dwarehouse gallery, later we save this as json file and load this dynamic
-         * some examples
-         */
-        packages3D:{
-            'C0603': 'https://3dwarehouse.sketchup.com/embed.html?mid=ub1b01b5b-2631-43f4-88f0-d2ae7a9ef7ae',
-            'C0805': 'https://3dwarehouse.sketchup.com/embed.html?mid=ub6fa6b56-cded-4b48-b61b-19b84cfdcf84',
-            'R0603': 'https://3dwarehouse.sketchup.com/embed.html?mid=u1ac1438a-16ce-491b-a128-d039d96cbb5f',
-            'R0805': 'https://3dwarehouse.sketchup.com/embed.html?mid=ua6fc0469-d44e-43eb-87db-0f9f119f8a62'
-        },
         pnpholders: {
             'PNP Holder V0.1': 'pnp_holder_v0.1'
         },
@@ -970,11 +958,13 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             // get cmp from tray
             var rotate = cmp.rot;
             rotate = parseInt(rotate.replace(/\D+/ig, ''));
-            if(rotate)
+            if(rotate > 0) {
                 rotate = rotate / 100;
-            console.log('PNP rotate', rotate);
+            } else {
+                return ''; // rot == 0
+            }
             // we choose a stepper with 200 steps for 360°
-            // $103=55.55 ... rotate for 90° = 0.9, rotate for 180° = 1.8
+            // $103=55.55 x microsteps ... rotate for 90° = 0.9, rotate for 180° = 1.8
             g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + rotate + ")\n";
             return g;
         },
@@ -1035,6 +1025,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         tapeStrategy: function(cmp, trayname){
             var g = "";
             g += "(---- get " + cmp.name + " from " + trayname + " ----- )\n";
+            var offset = 0.1;
             var tray = this.holderCoordinates.trays[ trayname ];
             var structure = this.holderCoordinates.structure;
             var dia = this.nozzleDiameter;
@@ -1046,7 +1037,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             
             g += "G0 Z" + this.safetyHeight + "\n";
             // now we moved to center point of tray holes
-            g += "G0 X" + (tray.x + structure.holeBorderDistance) + " Y" + (tray.y-0.1) + "\n";
+            g += "G0 X" + (tray.x + structure.holeBorderDistance) + " Y" + (tray.y-offset) + "\n";
             
             // set to relative coordination system
             g += "G91" + "\n";
@@ -1056,13 +1047,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             g += "G1 F" + structure.feedrate + " Z" + structure.tapeThick  + "\n";
 
             // move up in Y Axis to get next component
-            g += "G1 F" + structure.feedrate + " Y" + structure.holeDistance  + "\n";
+            g += "G1 F" + structure.feedrate + " Y" + (structure.holeDistance+offset)  + "\n";
             g += "G0 Z" + this.safetyHeight + "\n";
             
-            g += "G0 Z-" + this.safetyHeight + " Y-" + (structure.holeComponentDistance.y+nozzlediff) + " X" + structure.holeComponentDistance.x + "\n"; // move to center of cmp
-            g += "(chilipeppr_pause vacuum true)\n"; // move to center of cmp
+            // move to center of cmp
+            // TODO to Z0 is maybe not enough, Z0 are the surface of PCB ... check surface - pcbthick
+            g += "G0 Z-" + (this.safetyHeight + this.pcbthick) + " Y-" + (structure.holeComponentDistance.y+nozzlediff) + " X" + structure.holeComponentDistance.x + "\n";
+
+            // switch vacuum on
+            g += "(chilipeppr_pause vacuum true)\n";
             
-            g += "G90" + "\n";                                  // set to relative coordination system
+            // set to absolute coordination system
+            g += "G90" + "\n";
             g += "G0 Z" + this.safetyHeight + "\n";
             
             return g;
