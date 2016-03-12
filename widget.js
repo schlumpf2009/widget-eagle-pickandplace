@@ -122,6 +122,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
         holderCoordinates: {
             size: {dx: 260, dy:130, dz: 10},
             zero: {x: 6, y: 55},   // calculated from center of platform
+            idlepos: {x:-116, y:76, z:20}, // Move header to Position after process 
             pcbThick: 0.6,          // pcb thick minus deep of pcb pocket in mm i.e.: (1.6mm - 1mm)
             sortAxis: 'x',          // Axis for calculate ways
             pcbholder: {dx: 120, dy: 80, deep: -1}, // dimensions of pcb holder
@@ -861,6 +862,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             g += "( Each smd component has a pick&place strategy )\n";
             g += "( this use a vacuum suction solenoid and stepper to rotate sm in correct position )\n";
             g += "( use a special PnP Holder )\n";
+            
+            //g += "M6 (Init display --url:http://short.us/website--)";
 
             /* 
             Strategy to get a component and place it
@@ -908,8 +911,11 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
                }
             }
 
+            // Reset 2. controller andmove to idle pos
             g += "(chilipeppr_pause rotate" + " G1 F100 " + this.rotateAxis + '0' + ")\n"; // rotate back to zero
             g += "(chilipeppr_pause vacuum reset)\n"; // deenergyze valves
+            g += "G0 Z" + this.holderCoordinates.idlepos.z + "\n"; // move to idlepos Z
+            g += "G0 X" + this.holderCoordinates.idlepos.x + " Y" + this.holderCoordinates.idlepos.y + "\n"; // move to idlepos XY
 
             console.log('PNP gcode: ', g);
 
@@ -1014,7 +1020,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             
             // move to center of cmp
             // TODO to Z0 is maybe not enough, Z0 are the surface of PCB ... check surface - pcbthick
-            g += "G0 Z-" + (this.safetyHeight + this.pcbthick) + " Y-" + (structure.holeComponentDistance.y+nozzlediff) + " X" + structure.holeComponentDistance.x + "\n";
+            g += "G0 Z-" + (this.safetyHeight + this.holderCoordinates.pcbThick) + " Y-" + (structure.holeComponentDistance.y+nozzlediff) + " X" + structure.holeComponentDistance.x + "\n";
 
             // switch vacuum on
             g += "(chilipeppr_pause vacuum true)\n";
