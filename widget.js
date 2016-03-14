@@ -857,13 +857,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
          * Generate the gcode for pnp
          */
         exportGcodepickandplace: function(eagleWidget) {
-            var g = "";
+            var g = "\n";
+            
+            if(this.options.PNPXoffset !== undefined)
+                g += "G92 X" + this.options.PNPXoffset + " Y" + this.options.PNPYoffset + "\n"; 
+            
             g += "(------ Pick and Place Moves -------)\n";
             g += "( Each smd component has a pick&place strategy )\n";
             g += "( this use a vacuum suction solenoid and stepper to rotate sm in correct position )\n";
             g += "( use a special PnP Holder )\n";
             
-            //g += "M6 (Init display --url:http://short.us/website--)";
+            g += "M6 (Init display --url:http://short.us/website--)\n";
 
             /* 
             Strategy to get a component and place it
@@ -1164,6 +1168,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle-pickandplace", ["chilipeppr_ready",
             that.reginput('nozzleDiameter');
             that.reginput('nozzleRunout');
             that.reginput('packagesTrays');
+            that.reginput('PNPXoffset');
+            that.reginput('PNPYoffset');
             
             that.reginput();
         },
