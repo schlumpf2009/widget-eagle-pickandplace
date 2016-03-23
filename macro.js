@@ -19,6 +19,8 @@ Canulla: 0.6mm
 Z-Height: 0.3 (C / 2)
 X-Move: 0.6mm
 
+// add xtc (Xpix Automatic Tool Change) to macro
+
 */
 var myWatchChiliPepprPause = {
    serialPort:       "/dev/ttyUSB0",
