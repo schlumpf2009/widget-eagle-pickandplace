@@ -21,7 +21,8 @@ X-Move: 0.6mm
 
 */
 var myWatchChiliPepprPause = {
-   serialPort: "/dev/ttyUSB0",
+   serialPort:       "/dev/ttyUSB0",
+   serialPortXTC:    "/dev/ttyUSB1",
    vacuumCommands: {
       on:  ['M5', 'M8'],   // 1.valve: open | 2.valve: close
       off: ['M3', 'M9'],   // 1.valve: close| 2.valve: open
@@ -118,6 +119,13 @@ var myWatchChiliPepprPause = {
          this.RotateGcode         = gcode.split(' ').slice(-3).join(' ') + "\n";
          this.Wait                = this.distance2time(this.Rotate);
       }
+
+      if(this.GCmd.match(/xtc/)){
+         // (chilipeppr_pause XTC lev 200)
+         this.Command            = 'xtc';
+         this.xtcCmd             = gcode.split(' ').slice(-2);
+         this.xtcValue           = parseFloat(gcode.split(' ').last());
+      }
       
 console.log('MACRO: ', this);
    },
@@ -137,6 +145,9 @@ console.log('MACRO: ', this);
 
       if(this.Command == 'rotate')
          payload = this.rotate();
+
+      if(this.Command == 'xtc')
+         payload = this.xtc();
 
       cmd += JSON.stringify(payload) + "\n";
       macro.status("Send to : " + this.serialPort + ' cmd: "' + payload.Data.last().D.replace(/\n/,'') + '" Timeout: ' + this.Wait + ' ms');
@@ -204,6 +215,20 @@ console.log('MACRO: ', this);
          ]
       };
    },
+
+   xtc: function(){
+      return {
+         P: this.serialPortXTC,
+         Data: [
+            {
+               D: this.xtcCmd + ' ' + this.xtcValue,
+               Id: "xtc " + ++this.ctr
+            }
+
+         ]
+      };
+   },
+
    distance2time:function(distance){
       return (distance / this.feedRate) * (60*1000); // distane in milliseconds
    },
