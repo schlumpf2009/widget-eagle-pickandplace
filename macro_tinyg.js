@@ -21,6 +21,13 @@ X-Move: 0.6mm
 
 // add xtc (Xpix Automatic Tool Change) to macro
 
+To test this with tinyg2 or tinyg follow this steps:
+   * use SPJS 1.89
+   * use url http://chilipeppr.com/tinyg?v9=true
+   * set linenumbers on
+   * in tinyg widget set "No init CMD's Mode"
+   * choose "tinygg2" in SPJS Widget
+
 */
 if (!Array.prototype.last){
     Array.prototype.last = function(){
@@ -29,7 +36,6 @@ if (!Array.prototype.last){
 };
 
 var myWatchChiliPepprPause = {
-   cnccontroller: 'TINYG', // or TINYG
    //serialPort:       "/dev/ttyUSB0",
    //serialPortXTC:    "/dev/ttyUSB1",
    serialPort:       "COM5",
@@ -60,7 +66,8 @@ var myWatchChiliPepprPause = {
    },
    uninit: function() {
       macro.status("Uninitting chilipeppr_pause macro.");
-      this.unsetupSubscribe();
+      chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
+      chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnExecute); // TINYG
    },
    setupSubscribe: function() {
       // Subscribe to both events because you will not
@@ -68,33 +75,12 @@ var myWatchChiliPepprPause = {
       // enough to send onExecute, i.e. TinyG will only
       // get onExecute events while Grbl will only get
       // onComplete events
-console.log('setupSubscribe this: ', this);
 
-      if(this.cnccontroller == 'TINYG')
-         chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
-
-      if(this.cnccontroller == 'GRBL'){
-         chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnComplete); // GRBL
-         chilipeppr.subscribe("/com-chilipeppr-interface-cnccnccontroller/status", this, this.onChiliPepprStateChanged);
-      }
-   },
-   unsetupSubscribe: function() {
-      if(this.cnccontroller == 'TINYG')
-         chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
-
-      if(this.cnccontroller == 'GRBL'){
-         chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnComplete); // GRBL
-         chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccnccontroller/status", this, this.onChiliPepprStateChanged);
-      }
-   },
-   onChiliPepprStateChanged: function(state){
-      this.State = state; // Save state, works only with GRBL!
+      chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
+      // chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnExecute); // GRBL
    },
    onChiliPepprPauseOnExecute: function(data) {
-      this.parseComment(data);
-      this.onPauseAction(data);
-   },
-   onChiliPepprPauseOnComplete: function(data) {
+console.log('Catch onChiliPepprPauseOnExecute:', data);
       this.parseComment(data);
       this.onPauseAction(data);
    },
@@ -140,7 +126,7 @@ console.log('setupSubscribe this: ', this);
          this.Wait                = this.distance2time(this.Rotate);
       } else 
       if(this.GCmd.match(/xtc/)){
-         // (chilipeppr_pause XTC lev 200)
+         // (chilipeppr_pause xtc lev 200)
          this.Command            = 'xtc';
          this.xtcCmd             = gcode.split(' ').slice(-2)[0];
          this.xtcValue           = parseFloat(gcode.split(' ').last());
@@ -149,12 +135,6 @@ console.log('setupSubscribe this: ', this);
 console.log('Macro this: ', this);
    },
    onPauseAction: function(data) {
-      // wait on main cnccontroller's idle state (think asynchron!)
-      if(this.cnccontroller == 'GRBL' && this.State != "Idle"){ // wait for idle state
-         setTimeout(this.onPauseAction.bind(this), 250);
-         return;
-      }
-
       // wait on main cnccontroller's idle state (think asynchron!)
       var payload,
       cmd = "sendjson ";
@@ -179,7 +159,6 @@ console.log('Macro this: ', this);
       chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
 
       setTimeout(this.unpauseGcode, this.Wait); // give action some time
-      //setTimeout(this.unpauseGcode, 1000); // give action some time
    },
    dispense: function(){
       this.ctr++;
