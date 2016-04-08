@@ -46,6 +46,7 @@ var myWatchChiliPepprPause = {
       reset: ['M5', 'M9']  // switch off all values
    },
    feedRate: 100,
+   toolnumber: 0,
 	init: function() {
       // Uninit previous runs to unsubscribe correctly, i.e.
       // so we don't subscribe 100's of times each time we modify
@@ -60,27 +61,45 @@ var myWatchChiliPepprPause = {
       // store macro in window object so we have it next time thru
       window["myWatchChiliPepprPause"] = this;
 
-      this.setupSubscribe();
+      // Check for Automatic Toolchange Command
+      chilipeppr.subscribe("/com-chilipeppr-widget-serialport/jsonSend", this, this.onJsonSend);
+		chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onpause", this, this.onATC);
+
+      // Check for all supported commands
+      chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
       
       chilipeppr.publish("/com-chilipeppr-elem-flashmsg/flashmsg", "XDisPlace Macro", "Send commands to second xdisplace cnccontroller for Dispense and Pick&Place");
    },
    uninit: function() {
       macro.status("Uninitting chilipeppr_pause macro.");
+		chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onpause", this, this.onATC);
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnExecute); // TINYG
    },
-   setupSubscribe: function() {
-      // Subscribe to both events because you will not
-      // get onComplete if the cnccontroller is sophisticated
-      // enough to send onExecute, i.e. TinyG will only
-      // get onExecute events while Grbl will only get
-      // onComplete events
+   onJsonSend: function(data){
+      // test to M6 and try to find the toolnumber
+      console.log('atc data', data);
 
-      chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
-      // chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this, this.onChiliPepprPauseOnExecute); // GRBL
+      data.forEach(function(gcode){
+         var toolmark = gcode.D.split(' ')[3];
+      console.log('atc toolmark', toolmark);
+         
+         if(/^T\d+/.test(toolmark)){
+            var tn = parseInt(toolmark.match(/(\d+)/).pop());
+            if( tn > 0){
+               this.toolnumber = tn;
+            }
+            console.log('atc toolnumber', this.toolnumber);
+         }
+      });
+   },
+   onATC: function(pause, mode){
+console.log('onATC', pause, data);
+      if(mode == 'm6'){
+         // start atc process
+      }
    },
    onChiliPepprPauseOnExecute: function(data) {
-console.log('Catch onChiliPepprPauseOnExecute:', data);
       this.parseComment(data);
       this.onPauseAction(data);
    },
