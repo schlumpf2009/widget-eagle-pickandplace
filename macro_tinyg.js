@@ -120,6 +120,9 @@ var myWatchChiliPepprPause = {
          var atcparams = this.atcParameters;
          var holder = this.atcMillHolder[ (this.toolnumber -1)];
 
+         if($.type(holder) !== 'object')
+            return;
+
          // start spindle very slow and set current level
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
             P: this.serialPortXTC, 
