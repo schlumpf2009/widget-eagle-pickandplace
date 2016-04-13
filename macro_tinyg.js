@@ -118,13 +118,13 @@ var myWatchChiliPepprPause = {
          });
       }
    },
-   onATC: function(linenumber){
-      console.log('ATC Execute Line:', linenumber);
+   onATC: function(line){
+      console.log('ATC Execute Line:', line);
 
       // now the machine is in pause mode
       // cuz M6 linenumber are the same as actual linenumber
       // and we can do whatever we like :)
-      if(linenumber == this.toolline){
+      if(line.Line == this.toolline){
          console.log('ATC Process:', linenumber);
 
          // get parameters for millholder
