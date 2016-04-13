@@ -129,7 +129,7 @@ var myWatchChiliPepprPause = {
 
          // get parameters for millholder
          var atcparams = this.atcParameters;
-         var holder = this.atcMillHolder[ (this.toolnumber-1) ];
+         var holder = this.atcMillHolder[ (this.toolnumber-1) ]; 
 
          if($.type(holder) !== 'object')
             return;
