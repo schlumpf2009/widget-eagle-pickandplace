@@ -60,6 +60,7 @@ var myWatchChiliPepprPause = {
    ],
    feedRate: 100,
    toolnumber: 0,
+   toolline: 0,
 	init: function() {
       // Uninit previous runs to unsubscribe correctly, i.e.
       // so we don't subscribe 100's of times each time we modify
@@ -76,7 +77,7 @@ var myWatchChiliPepprPause = {
 
       // Check for Automatic Toolchange Command
       chilipeppr.subscribe("/com-chilipeppr-widget-serialport/jsonSend", this, this.onJsonSend);
-		chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onpause", this, this.onATC);
+		chilipeppr.subscribe("/com-chilipeppr-interface-cnccontroller/onExecute", this, this.onATC);
       chilipeppr.subscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
 
       // Check for all supported commands
@@ -86,7 +87,7 @@ var myWatchChiliPepprPause = {
    },
    uninit: function() {
       macro.status("Uninitting chilipeppr_pause macro.");
-		chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onpause", this, this.onATC);
+		chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/onExecute", this, this.onATC);
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
@@ -107,17 +108,20 @@ var myWatchChiliPepprPause = {
                var tn = parseInt(toolmark.match(/(\d+)/).pop());
                if( tn > 0){
                   this.toolnumber = tn;
+                  this.toolline++;
                }
-               console.log('atc toolnumber', this.toolnumber);
+               console.log('atc toolnumber', this.toolnumber, this.toolline);
             }
          });
       }
    },
-   onATC: function(pause, mode){
-      console.log('ATC Pause(M6):', pause, mode);
+   onATC: function(linenumber){
+      console.log('ATC Pause(M6):', linenumber);
 
-      // now the machine is in pause mode and we can do whatever we like :)
-      if(mode == 'm6'){
+      // now the machine is in pause mode
+      // cuz M6 linenumber are the same as actual linenumber
+      // and we can do whatever we like :)
+      if(linenumber == this.toolline){
          // get parameters for millholder
          var atcparams = this.atcParameters;
          var holder = this.atcMillHolder[ (this.toolnumber -1)];
@@ -144,7 +148,7 @@ var myWatchChiliPepprPause = {
          })+"\n");
 
          // wait on main cnccontroller's stop state (think asynchron!)
-         this.onATCAfter();
+         setTimeout(this.onATCAfter.bind(this), 250);
       }
    },
    onATCAfter: function(){
