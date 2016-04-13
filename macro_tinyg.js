@@ -93,7 +93,7 @@ var myWatchChiliPepprPause = {
       chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
    },
    onStateChanged: function(state){
-      console.log('ATC State:', state);
+      console.log('ATC State:', state, this);
       this.State = state;
    },
    onJsonSend: function(data){
@@ -101,16 +101,19 @@ var myWatchChiliPepprPause = {
       console.log('ATC data', data);
 
       if($.type(data) === 'array'){
+         var that = this, 
+             tl = 0;
          data.forEach(function(gcode){
             var toolmark = gcode.D.split(' ')[3];
+            tl++;
    
             if(/^T\d+/.test(toolmark)){
                var tn = parseInt(toolmark.match(/(\d+)/).pop());
                if( tn > 0){
-                  this.toolnumber = tn;
-                  this.toolline++;
+                  that.toolnumber = tn;
+                  that.toolline = tl;
                }
-               console.log('atc toolnumber', this.toolnumber, this.toolline);
+               console.log('atc toolnumber', that.toolnumber, that.toolline);
             }
          });
       }
