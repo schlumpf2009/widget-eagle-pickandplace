@@ -92,11 +92,12 @@ var myWatchChiliPepprPause = {
       chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
    },
    onStateChanged: function(state){
+      console.log('ATC State:', state);
       this.State = state;
    },
    onJsonSend: function(data){
       // test to M6 and try to find the toolnumber
-      console.log('atc data', data);
+      console.log('ATC data', data);
 
       if($.type(data) === 'array'){
          data.forEach(function(gcode){
@@ -113,6 +114,7 @@ var myWatchChiliPepprPause = {
       }
    },
    onATC: function(pause, mode){
+      console.log('ATC Pause(M6):', pause, mode);
 
       // now the machine is in pause mode and we can do whatever we like :)
       if(mode == 'm6'){
