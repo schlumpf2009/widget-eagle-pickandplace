@@ -119,15 +119,17 @@ var myWatchChiliPepprPause = {
       }
    },
    onATC: function(linenumber){
-      console.log('ATC Pause(M6):', linenumber);
+      console.log('ATC Execute Line:', linenumber);
 
       // now the machine is in pause mode
       // cuz M6 linenumber are the same as actual linenumber
       // and we can do whatever we like :)
       if(linenumber == this.toolline){
+         console.log('ATC Process:', linenumber);
+
          // get parameters for millholder
          var atcparams = this.atcParameters;
-         var holder = this.atcMillHolder[ (this.toolnumber -1)];
+         var holder = this.atcMillHolder[ (this.toolnumber-1) ];
 
          if($.type(holder) !== 'object')
             return;
