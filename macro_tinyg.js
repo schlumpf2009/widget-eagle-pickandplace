@@ -36,10 +36,10 @@ if (!Array.prototype.last){
 };
 
 var myWatchChiliPepprPause = {
-   //serialPort:       "/dev/ttyUSB0",
-   //serialPortXTC:    "/dev/ttyUSB1",
-   serialPort:       "COM5",
-   serialPortXTC:    "COM3",
+   serialPort:       "/dev/ttyUSB0",
+   serialPortXTC:    "/dev/ttyUSB2",
+   //serialPort:       "COM5",
+   //serialPortXTC:    "COM3",
    vacuumCommands: {
       on:  ['M5', 'M8'],   // 1.valve: open | 2.valve: close
       off: ['M3', 'M9'],   // 1.valve: close| 2.valve: open
@@ -55,8 +55,8 @@ var myWatchChiliPepprPause = {
    atcMillHolder: [
       // Center Position holder, catch height, tighten value, how long tighten in milliseconds
       // ---------|-------------|-------------|--------------------------------
-      {posX : -150, posY : 50,   posZ: 5,   tourque: 200, time: 500}, // first endmill holder
-      {posX : -150, posY : 100,  posZ: 5,   tourque: 200, time: 500}, // second endmill holder
+      {posX : -235, posY : 26.5,   posZ: 5,   tourque: 200, time: 500}, // first endmill holder
+      {posX : -150, posY : 100,    posZ: 5,   tourque: 200, time: 500}, // second endmill holder
    ],
    feedRate: 100,
    toolnumber: 0,
