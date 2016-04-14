@@ -140,6 +140,7 @@ var myWatchChiliPepprPause = {
          // start spindle very slow and set current level
          var cmd = "send " 
                      + this.serialPortXTC + " " 
+                     + "fwd " + (atcparams.forward+100) + "\n" 
                      + "fwd " + atcparams.forward + "\n" 
                      + "lev " + atcparams.level + "\n";
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
