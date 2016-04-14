@@ -126,8 +126,8 @@ var myWatchChiliPepprPause = {
       // now the machine is in pause mode
       // cuz M6 linenumber are the same as actual linenumber
       // and we can do whatever we like :)
-console.log('ATC Compare: ', line.Line,this.pauseline);
-      if(line.Line == this.pauseline){
+console.log('ATC Compare: ', line.line,this.pauseline);
+      if(line.line == this.pauseline){
          console.log('ATC Process:', this);
 
          // get parameters for millholder
