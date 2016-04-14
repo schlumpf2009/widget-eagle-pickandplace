@@ -47,7 +47,7 @@ var myWatchChiliPepprPause = {
       reset: ['M5', 'M9']  // switch off all values
    },
    atcParameters: {
-      level:   400,     // the current level in mA where the spindle will break
+      level:   800,     // the current level in mA where the spindle will break
       forward: 30,      // value for minimum rpm
       safetyHeight: 35, // safety height
       feedRate: 300,    // Feedrate to move over the catch cable
