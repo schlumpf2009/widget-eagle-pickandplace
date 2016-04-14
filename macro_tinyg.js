@@ -60,7 +60,8 @@ var myWatchChiliPepprPause = {
    ],
    feedRate: 100,
    toolnumber: 0,
-   toolline: 0,
+   pauseline: 0,
+	exeLine: 0,
 	init: function() {
       // Uninit previous runs to unsubscribe correctly, i.e.
       // so we don't subscribe 100's of times each time we modify
@@ -95,25 +96,25 @@ var myWatchChiliPepprPause = {
    onStateChanged: function(state){
       console.log('ATC State:', state, this);
       this.State = state;
+      if(this.State === 'End')
+         this.exeLine = 0;
    },
    onJsonSend: function(data){
       // test to M6 and try to find the toolnumber
       console.log('ATC data', data);
 
       if($.type(data) === 'array'){
-         var that = this, 
-             tl = 0;
+         var that = this;
          data.forEach(function(gcode){
             var toolmark = gcode.D.split(' ')[3];
-            tl++;
-   
+
             if(/^T\d+/.test(toolmark)){
                var tn = parseInt(toolmark.match(/(\d+)/).pop());
                if( tn > 0){
                   that.toolnumber = tn;
-                  that.toolline = tl;
+                  that.pauseline = that.exeLine++;
                }
-               console.log('atc toolnumber', that.toolnumber, that.toolline);
+               console.log('atc toolnumber', that.toolnumber, that.pauseline);
             }
          });
       }
@@ -124,8 +125,8 @@ var myWatchChiliPepprPause = {
       // now the machine is in pause mode
       // cuz M6 linenumber are the same as actual linenumber
       // and we can do whatever we like :)
-      if(line.Line == this.toolline){
-         console.log('ATC Process:', linenumber);
+      if(line.Line == this.pauseline){
+         console.log('ATC Process:', this);
 
          // get parameters for millholder
          var atcparams = this.atcParameters;
