@@ -145,13 +145,10 @@ var myWatchChiliPepprPause = {
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
 
          // now move spindle to the holder position
-         chilipeppr.publish("/com-chilipeppr-widget-serialport/jsonSend", { 
-            Data: [
-               {  D: "G0 X" + holder.posX + " Y" + holder.posY + " Z" + atcparams.safetyHeight + "\n", Id: "atcCommand" + this.ctr++},
-               {  D: "G0 Z" + holder.posZ + "\n",  Id: "atcCommand" + this.ctr++},
-               {  D: "G0 Z" + atcparams.nutZ + " F" + atcparams.feedRate + "\n", Id: "atcCommand" + this.ctr++},
-            ]
-         });
+         cmd = "G0 X" + holder.posX + " Y" + holder.posY + " Z" + atcparams.safetyHeight + "\n"; 
+         cmd += "G0 Z" + holder.posZ + "\n";
+         cmd += "G0 Z" + atcparams.nutZ + " F" + atcparams.feedRate + "\n";
+         chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
 
          // wait on main cnccontroller's stop state (think asynchron!)
          setTimeout(this.onATCAfter.bind(this), 250);
