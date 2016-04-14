@@ -114,7 +114,7 @@ var myWatchChiliPepprPause = {
                   that.toolnumber = tn;
                   that.pauseline = that.exeLine++;
                }
-               console.log('atc toolnumber', that.toolnumber, that.pauseline);
+               console.log('ATC Toolnumber/Pauseline', that.toolnumber, that.pauseline);
             }
          });
       }
