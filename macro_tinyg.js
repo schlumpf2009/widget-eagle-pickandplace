@@ -48,7 +48,7 @@ var myWatchChiliPepprPause = {
    },
    atcParameters: {
       level:   400,     // the current level in mA where the spindle will break
-      forward: 20,      // value for minimum rpm
+      forward: 30,      // value for minimum rpm
       safetyHeight: 35, // safety height
       feedRate: 300,    // Feedrate to move over the catch cable
       nutZ: -7,         // safety deep position of collet in nut
@@ -56,7 +56,7 @@ var myWatchChiliPepprPause = {
    atcMillHolder: [
       // Center Position holder, catch height, tighten value, how long tighten in milliseconds
       // ---------|-------------|-------------|--------------------------------
-      {posX : -235, posY : 26.5,   posZ: 5,   tourque: 200, time: 500}, // first endmill holder
+      {posX : -235, posY : 26.5,   posZ: 5,   tourque: 300, time: 500}, // first endmill holder
 //    {posX : -150, posY : 100,    posZ: 5,   tourque: 200, time: 500}, // second endmill holder
    ],
    feedRate: 100,
