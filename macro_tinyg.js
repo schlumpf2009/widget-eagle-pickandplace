@@ -36,8 +36,9 @@ if (!Array.prototype.last){
 };
 
 var myWatchChiliPepprPause = {
-   serialPort:       "/dev/ttyUSB0",
-   serialPortXTC:    "/dev/ttyUSB2",
+   serialPort:       "/dev/ttyUSB0", // GRBL Second Controller
+   serialPortMch:    "/dev/ttyUSB1", // Main CNC Controller
+   serialPortXTC:    "/dev/ttyUSB2", // XTC Controlelr
    //serialPort:       "COM5",
    //serialPortXTC:    "COM3",
    vacuumCommands: {
@@ -147,6 +148,7 @@ var myWatchChiliPepprPause = {
 
          // now move spindle to the holder position
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
+            P: this.serialPortMch,
             Data: [
                {  D: "G0 X" + holder.posX + " Y" + holder.posY + " Z" + atcparams.safetyHeight + "\n", Id: "atcCommand" + this.ctr++},
                {  D: "G0 Z" + holder.posZ + "\n",  Id: "atcCommand" + this.ctr++},
@@ -184,6 +186,7 @@ var myWatchChiliPepprPause = {
       var that = this;
       setTimeout(function () {
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
+            P: this.serialPortMch,
             Data: [
                {  D: "G0 Z" + atcparams.safetyHeight + "\n", Id: "atcCommand" + this.ctr++},
                {  D: "G0 X0 Y0n",  Id: "atcCommand" + this.ctr++},
