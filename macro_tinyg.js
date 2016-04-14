@@ -56,7 +56,7 @@ var myWatchChiliPepprPause = {
       // Center Position holder, catch height, tighten value, how long tighten in milliseconds
       // ---------|-------------|-------------|--------------------------------
       {posX : -235, posY : 26.5,   posZ: 5,   tourque: 200, time: 500}, // first endmill holder
-      {posX : -150, posY : 100,    posZ: 5,   tourque: 200, time: 500}, // second endmill holder
+//    {posX : -150, posY : 100,    posZ: 5,   tourque: 200, time: 500}, // second endmill holder
    ],
    feedRate: 100,
    toolnumber: 0,
@@ -126,7 +126,6 @@ var myWatchChiliPepprPause = {
       // now the machine is in pause mode
       // cuz M6 linenumber are the same as actual linenumber
       // and we can do whatever we like :)
-console.log('ATC Compare: ', data.line, this.pauseline);
       if(data.line == this.pauseline){
          console.log('ATC Process:', this);
 
