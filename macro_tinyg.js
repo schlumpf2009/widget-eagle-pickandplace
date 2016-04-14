@@ -168,24 +168,18 @@ var myWatchChiliPepprPause = {
       var holder = this.atcMillHolder[ (this.toolnumber -1)];
       
       // tighten process
-      chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
-         P: this.serialPortXTC, 
-         Data: [
-            {  D: "fwd " + holder.tourque + " " + holder.time + "\n",   Id: "atcCommand" + this.ctr++},
-         ]
-      })+"\n");
-      
+      var cmd = "send " 
+                  + this.serialPortXTC + " " 
+                  + "fwd " + holder.tourque + " " + holder.time + "\n"
+      chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
+
       
       // wait for tighten process and move to a secure position and unpause this toolchange
       var that = this;
       setTimeout(function () {
-         chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
-            P: this.serialPortMch,
-            Data: [
-               {  D: "G0 Z" + atcparams.safetyHeight + "\n", Id: "atcCommand" + this.ctr++},
-               {  D: "G0 X0 Y0n",  Id: "atcCommand" + this.ctr++},
-            ]
-         })+"\n");
+         cmd = "G0 Z" + atcparams.safetyHeight + "\n"; 
+         cmd += "G0 X0 Y0" + "\n";
+         chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
 
          that.unpauseGcode();
        }, (holder.time*2));
