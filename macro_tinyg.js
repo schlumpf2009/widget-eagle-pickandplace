@@ -107,12 +107,13 @@ var myWatchChiliPepprPause = {
          var that = this;
          data.forEach(function(gcode){
             var toolmark = gcode.D.split(' ')[3];
-
+            that.exeLine++;
+            
             if(/^T\d+/.test(toolmark)){
                var tn = parseInt(toolmark.match(/(\d+)/).pop());
                if( tn > 0){
                   that.toolnumber = tn;
-                  that.pauseline = that.exeLine++;
+                  that.pauseline = that.exeLine;
                }
                console.log('ATC Toolnumber/Pauseline', that.toolnumber, that.pauseline);
             }
