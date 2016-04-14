@@ -139,12 +139,13 @@ var myWatchChiliPepprPause = {
 
          // start spindle very slow and set current level
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
-            P: this.serialPortXTC, 
-            Data: [
-               {  D: "fwd " + atcparams.forward + "\n",     Id: "atcCommand" + this.ctr++},
-               {  D: "lev " + atcparams.level + "\n",       Id: "atcCommand" + this.ctr++},
-            ]
+            P: this.serialPortXTC, D: "fwd " + atcparams.forward + "\n",     Id: "atcCommand" + this.ctr++,
          }));
+
+         chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
+            P: this.serialPortXTC, D: "lev " + atcparams.level + "\n",       Id: "atcCommand" + this.ctr++
+         }));
+
 
          // now move spindle to the holder position
          chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", JSON.stringify({ 
