@@ -1,4 +1,4 @@
-/* global macro chilipeppr */
+/* global macro chilipeppr $ */
 /* 
 
 This macro shows how to watch for the chilipeppr
@@ -123,6 +123,8 @@ var myWatchChiliPepprPause = {
          });
       }
    },
+   // catch M6 T* in gcode at executet (pause) Time
+   // decide to get a new or put first the old tool on holder 
    onATC: function(data){
       console.log('ATC Execute Line:', data, data.line);
 
@@ -138,9 +140,11 @@ var myWatchChiliPepprPause = {
             setTimeout(this.atc_loose.bind(this), 250);  // put tool in holder
          }
          
-         // get new tool from holder
-         this.atc_move_to_holder(this.toolnumber);    // move to holder ...
-         setTimeout(this.atc_tight.bind(this), 250);  // get tool from holder
+         // get new tool from holder, if neccessary
+         if(this.toolnumber > 0){
+            this.atc_move_to_holder(this.toolnumber);    // move to holder ...
+            setTimeout(this.atc_tight.bind(this), 250);  // get tool from holder
+         }
       }
    },
    atc_move_to_holder: function( toolnumber ){
