@@ -1,6 +1,8 @@
 // get external js macro and run it
 $.getScript( "//rawgit.com/xpix/widget-eagle-pickandplace/master/macro_tinyg.js", function( data, textStatus, jqxhr ) {
   var e = window["myXdisplaceMacro"];
+  e.serialPort = "/dev/ttyUSB0"; // GRBL Second Controller
+  e.serialPortXTC= "/dev/ttyUSB2"; // XTC Controlelr
   e.atcParameters = {
       level:   800,     // the current level in mA where the spindle will break
       revlevel:-3000,   // the reverse level in mA where the spindle will break

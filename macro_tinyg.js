@@ -37,7 +37,6 @@ if (!Array.prototype.last){
 
 var myXdisplaceMacro = {
    serialPort:       "/dev/ttyUSB0", // GRBL Second Controller
-   serialPortMch:    "/dev/ttyUSB1", // Main CNC Controller
    serialPortXTC:    "/dev/ttyUSB2", // XTC Controlelr
    //serialPort:       "COM5",
    //serialPortXTC:    "COM3",
@@ -80,6 +79,7 @@ var myXdisplaceMacro = {
       window["myXdisplaceMacro"] = this;
 
       // Check for Automatic Toolchange Command
+      chilipeppr.subscribe("/com-chilipeppr-widget-serialport/onComplete", this, this.onComplete);
       chilipeppr.subscribe("/com-chilipeppr-widget-serialport/jsonSend", this, this.onJsonSend);
 		chilipeppr.subscribe("/com-chilipeppr-interface-cnccontroller/onExecute", this, this.onATC);
       chilipeppr.subscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
@@ -88,12 +88,13 @@ var myXdisplaceMacro = {
       chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
       
       chilipeppr.publish("/com-chilipeppr-elem-flashmsg/flashmsg", "XDisPlace Macro", "Send commands to second xdisplace cnccontroller for Dispense and Pick&Place");
-
-      return this;
+      
+      this.getGcode();
    },
    uninit: function() {
       macro.status("Uninitting chilipeppr_pause macro.");
-		chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/onExecute", this, this.onATC);
+      chilipeppr.unsubscribe("/com-chilipeppr-widget-serialport/onComplete", this, this.onComplete);		
+      chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/onExecute", this, this.onATC);
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
@@ -104,6 +105,42 @@ var myXdisplaceMacro = {
       if(this.State === 'End')
          this.exeLine = 0;
    },
+	getGcode: function() {
+		chilipeppr.subscribe("/com-chilipeppr-widget-gcode/recvGcode", this, this.getGcodeCallback);
+		chilipeppr.publish("/com-chilipeppr-widget-gcode/requestGcode", "");
+		chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/recvGcode", this.getGcodeCallback);
+	},
+	getGcodeCallback: function(data) {
+		this.gcode = data;
+	},
+   // Add control DC Spindle for M3 and M5, M30 will unset all parameters
+	onComplete: function(data) {
+		console.log('ATC onComplete', data);
+		// Id's from the Gcode widget always start with g
+		// If you jog, use the serial port console, or do other stuff we'll 
+		// see callbacks too, but we only want real gcode data here
+		if (data.Id.match(/^g(\d+)/)) {
+			// $1 is populated with digits from the .match regex above
+			var index = parseInt(RegExp.$1); 
+			// our id is always 1 ahead of the gcode.lines array index, i.e.
+			// line 1 in the widget is this.gcode.lines[0]
+			var gcodeline = this.gcode.lines[index - 1];
+			
+			// Try to match M3, M5, and M30 (program end)
+			// The \b is a word boundary so looking for M3 doesn't also
+			// hit on M30
+			if (gcodeline.match(/\bM3\b/i)) {
+				// turn spindle off
+				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " brk\n");
+			} else if (gcodeline.match(/\bM5\b/i)) {
+				// turn spindle on
+				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " fwd 400\n");
+			} else if (gcodeline.match(/\bM30\b/i)) {
+				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.arduinoSerialPort + " laser-off\n");
+				this.uninit();
+			}
+		}
+	},
    onJsonSend: function(data){
       // test to M6 and try to find the toolnumber
       console.log('ATC data', data);
