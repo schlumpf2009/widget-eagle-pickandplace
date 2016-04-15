@@ -129,14 +129,14 @@ var myXdisplaceMacro = {
 			// Try to match M3, M5, and M30 (program end)
 			// The \b is a word boundary so looking for M3 doesn't also
 			// hit on M30
-			if (gcodeline.match(/\bM3\b/i)) {
+			if (gcodeline.match(/\bM5\b/i)) {
 				// turn spindle off
 				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " brk\n");
-			} else if (gcodeline.match(/\bM5\b/i)) {
+			} else if (gcodeline.match(/\bM3\b/i)) {
 				// turn spindle on
 				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " fwd 400\n");
 			} else if (gcodeline.match(/\bM30\b/i)) {
-				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.arduinoSerialPort + " laser-off\n");
+				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " brk\n");
 				this.uninit();
 			}
 		}
