@@ -132,7 +132,7 @@ var myWatchChiliPepprPause = {
       if(data.line == this.pauseline){
          console.log('ATC Process:', this);
 
-         // check if a different tool used
+         // check if a different tool in use
          if(this.toolinuse > 0 && this.toolinuse != this.toolnumber){
             this.atc_move_to_holder(this.toolinuse);     // move to holder ...
             setTimeout(this.atc_loose.bind(this), 250);  // put tool in holder
