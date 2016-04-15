@@ -88,6 +88,8 @@ var myWatchChiliPepprPause = {
       chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this, this.onChiliPepprPauseOnExecute); // TINYG
       
       chilipeppr.publish("/com-chilipeppr-elem-flashmsg/flashmsg", "XDisPlace Macro", "Send commands to second xdisplace cnccontroller for Dispense and Pick&Place");
+
+      return this;
    },
    uninit: function() {
       macro.status("Uninitting chilipeppr_pause macro.");
