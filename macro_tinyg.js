@@ -392,4 +392,5 @@ console.log('Macro this: ', this);
       return (distance / this.feedRate) * (60*1000); // distane in milliseconds
    },
 };
-myXdisplaceMacro.init();
+// call init from cp macro loader
+// myXdisplaceMacro.init();
