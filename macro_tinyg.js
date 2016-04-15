@@ -35,7 +35,7 @@ if (!Array.prototype.last){
     };
 };
 
-var myWatchChiliPepprPause = {
+var myXdisplaceMacro = {
    serialPort:       "/dev/ttyUSB0", // GRBL Second Controller
    serialPortMch:    "/dev/ttyUSB1", // Main CNC Controller
    serialPortXTC:    "/dev/ttyUSB2", // XTC Controlelr
@@ -69,15 +69,15 @@ var myWatchChiliPepprPause = {
       // Uninit previous runs to unsubscribe correctly, i.e.
       // so we don't subscribe 100's of times each time we modify
       // and run this macro
-      if (window["myWatchChiliPepprPause"]) {
+      if (window["myXdisplaceMacro"]) {
          macro.status("This macro was run before. Cleaning up...");
-         window["myWatchChiliPepprPause"].uninit();
-         window["myWatchChiliPepprPause"] = undefined;
+         window["myXdisplaceMacro"].uninit();
+         window["myXdisplaceMacro"] = undefined;
       }
       macro.status("Subscribing to chilipeppr_pause pubsub event");
       
       // store macro in window object so we have it next time thru
-      window["myWatchChiliPepprPause"] = this;
+      window["myXdisplaceMacro"] = this;
 
       // Check for Automatic Toolchange Command
       chilipeppr.subscribe("/com-chilipeppr-widget-serialport/jsonSend", this, this.onJsonSend);
@@ -392,4 +392,4 @@ console.log('Macro this: ', this);
       return (distance / this.feedRate) * (60*1000); // distane in milliseconds
    },
 };
-myWatchChiliPepprPause.init();
+myXdisplaceMacro.init();
