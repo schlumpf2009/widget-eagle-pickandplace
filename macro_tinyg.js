@@ -48,6 +48,7 @@ var myWatchChiliPepprPause = {
    },
    atcParameters: {
       level:   800,     // the current level in mA where the spindle will break
+      revlevel:-3000,   // the reverse level in mA where the spindle will break
       forward: 30,      // value for minimum rpm
       safetyHeight: 35, // safety height
       feedRate: 300,    // Feedrate to move over the catch cable
@@ -63,6 +64,7 @@ var myWatchChiliPepprPause = {
    toolnumber: 0,
    pauseline: 0,
 	exeLine: 0,
+	toolinuse: 0,
 	init: function() {
       // Uninit previous runs to unsubscribe correctly, i.e.
       // so we don't subscribe 100's of times each time we modify
@@ -130,36 +132,77 @@ var myWatchChiliPepprPause = {
       if(data.line == this.pauseline){
          console.log('ATC Process:', this);
 
-         // get parameters for millholder
-         var atcparams = this.atcParameters;
-         var holder = this.atcMillHolder[ (this.toolnumber-1) ]; 
-
-         if($.type(holder) !== 'object')
-            return;
-
-         // start spindle very slow and set current level
-         var cmd = "send " 
-                     + this.serialPortXTC + " " 
-                     + "fwd " + (atcparams.forward+100) + "\n" 
-                     + "fwd " + atcparams.forward + "\n" 
-                     + "lev " + atcparams.level + "\n";
-         chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
-
-         // now move spindle to the holder position
-         cmd = "G0 X" + holder.posX + " Y" + holder.posY + " Z" + atcparams.safetyHeight + "\n"; 
-         cmd += "G0 Z" + holder.posZ + "\n";
-         cmd += "G0 Z" + atcparams.nutZ + " F" + atcparams.feedRate + "\n";
-         chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
-
-         // wait on main cnccontroller's stop state (think asynchron!)
-         setTimeout(this.onATCAfter.bind(this), 250);
+         // check if a different tool used
+         if(this.toolinuse > 0 && this.toolinuse != this.toolnumber){
+            this.atc_move_to_holder(this.toolinuse);     // move to holder ...
+            setTimeout(this.atc_loose.bind(this), 250);  // put tool in holder
+         }
+         
+         // get new tool from holder
+         this.atc_move_to_holder(this.toolnumber);    // move to holder ...
+         setTimeout(this.atc_tight.bind(this), 250);  // get tool from holder
       }
    },
-   onATCAfter: function(){
+   atc_move_to_holder: function( toolnumber ){
+      // get parameters for millholder
+      var atcparams = this.atcParameters;
+      var holder = this.atcMillHolder[ (toolnumber-1) ]; 
 
+      if($.type(holder) !== 'object')
+         return;
+
+      // start spindle very slow and set current level
+      var cmd = "send " 
+                  + this.serialPortXTC + " " 
+                  + "fwd " + (atcparams.forward+100) + "\n" 
+                  + "fwd " + atcparams.forward + "\n" 
+                  + "lev " + atcparams.level + "\n";
+      chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
+
+      // now move spindle to the holder position
+      cmd = "G0 X" + holder.posX + " Y" + holder.posY + " Z" + atcparams.safetyHeight + "\n"; 
+      cmd += "G0 Z" + holder.posZ + "\n";
+      cmd += "G0 Z" + atcparams.nutZ + " F" + atcparams.feedRate + "\n";
+      chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
+   },
+   atc_loose: function(){
       // wait on main cnccontroller's stop state (think asynchron!)
       if(this.State != "Stop"){ // wait for stop state
-         setTimeout(this.onATCAfter.bind(this), 250);
+         setTimeout(this.atc_loose.bind(this), 250);
+         return;
+      }
+
+      // ok state == stop, now we can tighten nut and move the machine 
+
+      var atcparams = this.atcParameters;
+      var holder = this.atcMillHolder[ (this.toolinuse-1)];
+      
+      // loose process
+      var cmd = "send " + this.serialPortXTC + " " 
+                  + "bwd " + (holder.tourque+50) + " " + holder.time + "\n" // rotate backward and 
+      chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
+
+      setTimeout(function() { // and loose the collet some time later
+         var cmdwait = "send " + this.serialPortXTC + " " + "lev " + atcparams.revlevel + "\n"; 
+         chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
+      }, 50);
+
+      // set tool in use
+      this.toolinuse = 0;
+
+      // wait for tighten process and move to a secure position and unpause this toolchange
+      var that = this;
+      setTimeout(function () {
+         cmd = "G0 Z" + atcparams.safetyHeight + "\n"; 
+         chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
+
+         that.unpauseGcode();
+       }, (holder.time*2));
+   },
+   atc_tight: function(){
+      // wait on main cnccontroller's stop state (think asynchron!)
+      if(this.State != "Stop"){ // wait for stop state
+         setTimeout(this.atc_tight.bind(this), 250);
          return;
       }
 
@@ -174,12 +217,13 @@ var myWatchChiliPepprPause = {
                   + "fwd " + holder.tourque + " " + holder.time + "\n"
       chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", cmd);
 
-      
+      // set tool in use
+      this.toolinuse = this.toolnumber;
+
       // wait for tighten process and move to a secure position and unpause this toolchange
       var that = this;
       setTimeout(function () {
          cmd = "G0 Z" + atcparams.safetyHeight + "\n"; 
-         cmd += "G0 X0 Y0" + "\n";
          chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
 
          that.unpauseGcode();
