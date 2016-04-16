@@ -103,6 +103,8 @@ var myXdisplaceMacro = {
    onStateChanged: function(state){
       console.log('ATC State:', state, this);
       this.State = state;
+      if(this.State === 'End')
+         this.exeLine = 0;
    },
 	getGcode: function() {
 		chilipeppr.subscribe("/com-chilipeppr-widget-gcode/recvGcode", this, this.getGcodeCallback);
