@@ -98,12 +98,11 @@ var myXdisplaceMacro = {
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnExecute", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-widget-gcode/onChiliPepprPauseOnComplete", this.onChiliPepprPauseOnExecute); // TINYG
       chilipeppr.unsubscribe("/com-chilipeppr-interface-cnccontroller/status", this, this.onStateChanged);
+      this.exeLine = 0;
    },
    onStateChanged: function(state){
       console.log('ATC State:', state, this);
       this.State = state;
-      if(this.State === 'End')
-         this.exeLine = 0;
    },
 	getGcode: function() {
 		chilipeppr.subscribe("/com-chilipeppr-widget-gcode/recvGcode", this, this.getGcodeCallback);
@@ -129,15 +128,12 @@ var myXdisplaceMacro = {
 			// Try to match M3, M5, and M30 (program end)
 			// The \b is a word boundary so looking for M3 doesn't also
 			// hit on M30
-			if (gcodeline.match(/\bM5\b/i)) {
+			if (gcodeline.match(/\bM5\b/i) || gcodeline.match(/\bM30\b/i)) {
 				// turn spindle off
 				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " brk\n");
 			} else if (gcodeline.match(/\bM3\b/i)) {
 				// turn spindle on
 				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " fwd 400\n");
-			} else if (gcodeline.match(/\bM30\b/i)) {
-				chilipeppr.publish("/com-chilipeppr-widget-serialport/ws/send", "send " + this.serialPortXTC + " brk\n");
-				this.uninit();
 			}
 		}
 	},
