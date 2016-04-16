@@ -124,6 +124,10 @@ var myXdisplaceMacro = {
 			// our id is always 1 ahead of the gcode.lines array index, i.e.
 			// line 1 in the widget is this.gcode.lines[0]
 			var gcodeline = this.gcode.lines[index - 1];
+
+         // Ignore empty lines
+			if(gcodeline === undefined)
+			   return;
 			
 			// Try to match M3, M5, and M30 (program end)
 			// The \b is a word boundary so looking for M3 doesn't also
