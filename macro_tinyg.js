@@ -125,6 +125,10 @@ var myXdisplaceMacro = {
 			var index = parseInt(RegExp.$1); 
 			// our id is always 1 ahead of the gcode.lines array index, i.e.
 			// line 1 in the widget is this.gcode.lines[0]
+         // Ignore empty lines
+			if(this.gcode === undefined)
+			   return;
+
 			var gcodeline = this.gcode.lines[index - 1];
 
          // Ignore empty lines
