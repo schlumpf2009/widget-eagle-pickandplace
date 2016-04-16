@@ -239,7 +239,7 @@ var myXdisplaceMacro = {
          cmd = "G0 Z" + atcparams.safetyHeight + "\n"; 
          chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
 
-         that.unpauseGcode();
+         setTimeout(function(){ that.unpauseGcode() }, 4000);
        }, (holder.time*2));
    },
    atc_tight: function(){
@@ -269,7 +269,7 @@ var myXdisplaceMacro = {
          cmd = "G0 Z" + atcparams.safetyHeight + "\n"; 
          chilipeppr.publish("/com-chilipeppr-widget-serialport/send", cmd);
 
-         that.unpauseGcode();
+         setTimeout(function(){ that.unpauseGcode() }, 4000);
        }, (holder.time*2));
    },
    onChiliPepprPauseOnExecute: function(data) {
