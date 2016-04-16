@@ -154,7 +154,7 @@ var myXdisplaceMacro = {
       if($.type(data) === 'array'){
          var that = this;
          data.forEach(function(gcode){
-            var toolmark = gcode.D.split(' ')[3];
+            var toolmark = gcode.D.split(' ').last();
             that.exeLine++;
             
             if(/^T\d+/.test(toolmark)){
