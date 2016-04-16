@@ -188,6 +188,7 @@ var myXdisplaceMacro = {
          // get new tool from holder, if neccessary
          if(this.toolnumber > 0){
             this.atc_move_to_holder(this.toolnumber);    // move to holder ...
+            // wait for stop state
             setTimeout(this.atc_tight.bind(this), 4000);  // get tool from holder
          }
       }
@@ -217,7 +218,7 @@ var myXdisplaceMacro = {
    atc_loose: function(){
       // wait on main cnccontroller's stop state (think asynchron!)
       if(this.State != "Stop"){ // wait for stop state
-         setTimeout(this.atc_loose.bind(this), 250);
+         setTimeout(this.atc_loose.bind(this), 100);
          return;
       }
 
@@ -251,7 +252,7 @@ var myXdisplaceMacro = {
    atc_tight: function(){
       // wait on main cnccontroller's stop state (think asynchron!)
       if(this.State != "Stop"){ // wait for stop state
-         setTimeout(this.atc_tight.bind(this), 250);
+         setTimeout(this.atc_tight.bind(this), 100);
          return;
       }
 
