@@ -182,13 +182,13 @@ var myXdisplaceMacro = {
          // check if a different tool in use
          if(this.toolinuse > 0 && this.toolinuse != this.toolnumber){
             this.atc_move_to_holder(this.toolinuse);     // move to holder ...
-            setTimeout(this.atc_loose.bind(this), 250);  // put tool in holder
+            setTimeout(this.atc_loose.bind(this), 4000);  // put tool in holder
          }
          
          // get new tool from holder, if neccessary
          if(this.toolnumber > 0){
             this.atc_move_to_holder(this.toolnumber);    // move to holder ...
-            setTimeout(this.atc_tight.bind(this), 250);  // get tool from holder
+            setTimeout(this.atc_tight.bind(this), 4000);  // get tool from holder
          }
       }
    },
